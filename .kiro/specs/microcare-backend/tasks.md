@@ -40,19 +40,19 @@
   - Add token payload type definitions
   - _Requirements: 1.2, 7.3_
 
-- [ ] 6. Implement password hashing utilities
+- [x] 6. Implement password hashing utilities
   - Create bcrypt-based password hashing function (10+ salt rounds)
   - Create password comparison function
   - Add password validation rules (minimum length, complexity)
   - _Requirements: 1.1, 7.1_
 
-- [ ] 7. Create authentication middleware
+- [x] 7. Create authentication middleware
   - Implement JWT verification middleware
   - Extract user information from token and attach to request
   - Handle expired and invalid tokens with 401 response
   - _Requirements: 1.3, 1.4_
 
-- [ ] 8. Implement AuthService with registration and login logic
+- [x] 8. Implement AuthService with registration and login logic
   - Create user registration service with email validation
   - Implement duplicate email checking
   - Create login service with credential verification
