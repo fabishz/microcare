@@ -1,0 +1,209 @@
+import { Response } from 'express';
+import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { ApiError } from '../middleware/errorHandler.js';
+import UserService from '../services/UserService.js';
+
+/**
+ * UserController
+ * Handles HTTP requests for user profile management endpoints
+ * 
+ * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
+ * - Implements GET /api/users/profile endpoint
+ * - Implements PUT /api/users/profile endpoint
+ * - Implements POST /api/users/change-password endpoint
+ * - Adds authentication requirement to all endpoints
+ * - Adds input validation for profile updates
+ */
+
+export class UserController {
+  /**
+   * Get user profile
+   * GET /api/users/profile
+   * 
+   * Requirement 2.1: WHEN an authenticated user requests their profile,
+   * THE system SHALL return their user information with HTTP 200 status
+   */
+  async getProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      // Verify user is authenticated
+      if (!req.user) {
+        throw new ApiError(401, 'Not authenticated');
+      }
+
+      // Get user profile from service
+      const userProfile = await UserService.getUserProfile(req.user.userId);
+
+      res.status(200).json({
+        success: true,
+        data: userProfile,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('User not found')) {
+          throw new ApiError(404, error.message);
+        }
+
+        if (error.message.includes('required')) {
+          throw new ApiError(400, error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to retrieve profile');
+    }
+  }
+
+  /**
+   * Update user profile
+   * PUT /api/users/profile
+   * 
+   * Requirement 2.2: WHEN an authenticated user updates their profile (name, email, preferences),
+   * THE system SHALL validate the input and persist changes to the database
+   * 
+   * Requirement 2.3: WHEN a user attempts to update another user's profile,
+   * THE system SHALL reject the request with HTTP 403 Forbidden
+   * 
+   * Requirement 2.4: WHEN profile data is invalid (malformed email, empty name),
+   * THE system SHALL return HTTP 400 Bad Request with validation error details
+   */
+  async updateProfile(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      // Verify user is authenticated
+      if (!req.user) {
+        throw new ApiError(401, 'Not authenticated');
+      }
+
+      const { name, email } = req.body;
+
+      // Validate that at least one field is provided
+      if (name === undefined && email === undefined) {
+        throw new ApiError(400, 'At least one field (name or email) must be provided');
+      }
+
+      // Validate name if provided
+      if (name !== undefined) {
+        if (typeof name !== 'string') {
+          throw new ApiError(400, 'Name must be a string', { name: 'Name must be a string' });
+        }
+
+        if (name.trim().length === 0) {
+          throw new ApiError(400, 'Name cannot be empty', { name: 'Name cannot be empty' });
+        }
+      }
+
+      // Validate email if provided
+      if (email !== undefined) {
+        if (typeof email !== 'string') {
+          throw new ApiError(400, 'Email must be a string', { email: 'Email must be a string' });
+        }
+
+        if (!email.includes('@') || !email.includes('.')) {
+          throw new ApiError(400, 'Invalid email format', { email: 'Invalid email format' });
+        }
+      }
+
+      // Update profile through service (includes authorization check)
+      const updatedProfile = await UserService.updateUserProfile(
+        req.user.userId,
+        req.user.userId,
+        { name, email }
+      );
+
+      res.status(200).json({
+        success: true,
+        data: updatedProfile,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('Unauthorized')) {
+          throw new ApiError(403, error.message);
+        }
+
+        if (error.message.includes('User not found')) {
+          throw new ApiError(404, error.message);
+        }
+
+        if (error.message.includes('Invalid') || error.message.includes('empty') || error.message.includes('already')) {
+          throw new ApiError(400, error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to update profile');
+    }
+  }
+
+  /**
+   * Change user password
+   * POST /api/users/change-password
+   * 
+   * Requirement 2.5: WHEN a user changes their password,
+   * THE system SHALL hash the new password and update the database securely
+   */
+  async changePassword(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      // Verify user is authenticated
+      if (!req.user) {
+        throw new ApiError(401, 'Not authenticated');
+      }
+
+      const { currentPassword, newPassword } = req.body;
+
+      // Validate required fields
+      if (!currentPassword || !newPassword) {
+        throw new ApiError(400, 'Missing required fields', {
+          currentPassword: !currentPassword ? 'Current password is required' : undefined,
+          newPassword: !newPassword ? 'New password is required' : undefined,
+        });
+      }
+
+      // Validate both are strings
+      if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+        throw new ApiError(400, 'Passwords must be strings');
+      }
+
+      // Change password through service (includes authorization check)
+      const updatedProfile = await UserService.changePassword(
+        req.user.userId,
+        req.user.userId,
+        { currentPassword, newPassword }
+      );
+
+      res.status(200).json({
+        success: true,
+        data: updatedProfile,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('Unauthorized')) {
+          throw new ApiError(403, error.message);
+        }
+
+        if (error.message.includes('User not found')) {
+          throw new ApiError(404, error.message);
+        }
+
+        if (error.message.includes('incorrect') || error.message.includes('Invalid') || error.message.includes('required') || error.message.includes('different')) {
+          throw new ApiError(400, error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to change password');
+    }
+  }
+}
+
+export default new UserController();

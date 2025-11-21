@@ -76,14 +76,14 @@
   - Implement update user query
   - _Requirements: 5.1, 5.5_
 
-- [ ] 11. Implement UserService with profile operations
+- [x] 11. Implement UserService with profile operations
   - Create getUserProfile service method
   - Create updateUserProfile service method with validation
   - Create changePassword service method
   - Add authorization checks for profile updates
   - _Requirements: 2.1, 2.2, 2.5_
 
-- [ ] 12. Create UserController and profile routes
+- [x] 12. Create UserController and profile routes
   - Implement GET /api/users/profile endpoint
   - Implement PUT /api/users/profile endpoint
   - Implement POST /api/users/change-password endpoint
