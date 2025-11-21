@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: microcare-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: microcare
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microcare-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d microcare"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: microcare-backend
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/microcare
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@postgres:5432/microcare
+      JWT_SECRET: dev-secret-key-change-in-production
+      JWT_EXPIRATION: 15m
+      REFRESH_TOKEN_EXPIRATION: 7d
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - /app/node_modules
+    networks:
+      - microcare-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    command: npm run dev
+
+  # Frontend Service (Vite Dev Server)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: microcare-frontend
+    environment:
+      VITE_API_URL: http://localhost:3000
+      VITE_APP_NAME: MicroCare
+    ports:
+      - "5173:8080"
+    depends_on:
+      - backend
+    volumes:
+      - ./src:/app/src
+      - ./index.html:/app/index.html
+      - ./vite.config.ts:/app/vite.config.ts
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./tsconfig.app.json:/app/tsconfig.app.json
+      - ./tsconfig.node.json:/app/tsconfig.node.json
+      - ./postcss.config.js:/app/postcss.config.js
+      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - /app/node_modules
+    networks:
+      - microcare-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    command: npm run dev
+
+networks:
+  microcare-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
