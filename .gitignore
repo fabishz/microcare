@@ -16,9 +16,14 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 .idea
+.kiro
+.kiro*
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+node_modules
+.gitignore
+.kiro/specs

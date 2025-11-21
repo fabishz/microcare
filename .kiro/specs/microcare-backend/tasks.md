@@ -2,7 +2,7 @@
 
 ## Phase 1: Project Setup and Infrastructure
 
-- [ ] 1. Initialize Node.js project with TypeScript configuration
+- [x] 1. Initialize Node.js project with TypeScript configuration
   - Create new Node.js project directory structure
   - Install dependencies: express, typescript, ts-node, dotenv, cors
   - Configure tsconfig.json for strict type checking
@@ -10,14 +10,13 @@
   - Create src/ directory structure: controllers/, services/, repositories/, middleware/, utils/, types/
   - _Requirements: 6.1, 6.2_
 
-- [ ] 2. Set up PostgreSQL database connection and pooling
-  - Install pg and connection pooling library (pg-pool)
-  - Create database connection module with connection pooling
+- [x] 2. Set up PostgreSQL database connection and pooling (Use Prisma ORM)
+
   - Implement connection error handling and retry logic
   - Create database initialization script
   - _Requirements: 5.1, 5.2_
 
-- [ ] 3. Create database schema and migrations
+- [x] 3. Create database schema and migrations
   - Create users table with email uniqueness constraint
   - Create journal_entries table with foreign key to users
   - Add indexes on user_id and created_at for performance
