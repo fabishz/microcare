@@ -1,9 +1,9 @@
 import { execSync } from 'child_process';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get the project root directory
+// Using process.cwd() which works in both production and test environments
+const projectRoot = process.cwd();
 
 /**
  * Run pending database migrations automatically
@@ -16,7 +16,7 @@ export async function runPendingMigrations(): Promise<void> {
     // Run Prisma migrations in deploy mode (non-interactive)
     // This applies all pending migrations without prompting
     execSync('npx prisma migrate deploy', {
-      cwd: path.resolve(__dirname, '../../'),
+      cwd: projectRoot,
       stdio: 'inherit',
       env: { ...process.env }
     });
@@ -36,7 +36,7 @@ export async function runPendingMigrations(): Promise<void> {
 export async function hasPendingMigrations(): Promise<boolean> {
   try {
     const output = execSync('npx prisma migrate status', {
-      cwd: path.resolve(__dirname, '../../'),
+      cwd: projectRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
@@ -57,7 +57,7 @@ export async function hasPendingMigrations(): Promise<boolean> {
 export async function getMigrationStatus(): Promise<string> {
   try {
     const output = execSync('npx prisma migrate status', {
-      cwd: path.resolve(__dirname, '../../'),
+      cwd: projectRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe']
     });
