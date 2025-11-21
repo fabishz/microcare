@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
@@ -48,6 +50,16 @@ app.get('/api/health', async (_req, res) => {
     timestamp: new Date().toISOString() 
   });
 });
+
+// Swagger UI documentation
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayOperationId: true,
+  },
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'MicroCare API Documentation',
+}));
 
 // Authentication routes
 app.use('/api/auth', authRoutes);

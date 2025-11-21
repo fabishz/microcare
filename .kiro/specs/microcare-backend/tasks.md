@@ -144,7 +144,7 @@
 
 ## Phase 6: API Documentation and Testing
 
-- [ ] 19. Create OpenAPI/Swagger documentation
+- [x] 19. Create OpenAPI/Swagger documentation
   - Install swagger-ui-express and swagger-jsdoc
   - Document all endpoints with request/response schemas
   - Add authentication requirements to documentation
@@ -158,7 +158,7 @@
   - Write tests for validation utilities
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ]* 21. Implement integration tests for API endpoints
+- [ ] 21. Implement integration tests for API endpoints
   - Write tests for authentication flow (register → login → access protected endpoint)
   - Write tests for user profile endpoints
   - Write tests for journal entry endpoints with pagination
