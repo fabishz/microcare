@@ -60,13 +60,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await apiClient.post<{ token: string; user: User }>(
+      const response = await apiClient.post<{
+        accessToken: string;
+        refreshToken: string;
+        user: User;
+      }>(
         '/api/auth/login',
         { email, password },
         { skipAuth: true }
       );
 
-      apiClient.setToken(response.token);
+      // Store both access and refresh tokens securely
+      apiClient.setToken(response.accessToken, response.refreshToken);
       setUser(response.user);
     } catch (err) {
       const apiError = err as ApiError;
@@ -82,13 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     setIsLoading(true);
     try {
-      const response = await apiClient.post<{ token: string; user: User }>(
+      const response = await apiClient.post<{
+        accessToken: string;
+        refreshToken: string;
+        user: User;
+      }>(
         '/api/auth/register',
         { name, email, password },
         { skipAuth: true }
       );
 
-      apiClient.setToken(response.token);
+      // Store both access and refresh tokens securely
+      apiClient.setToken(response.accessToken, response.refreshToken);
       setUser(response.user);
     } catch (err) {
       const apiError = err as ApiError;

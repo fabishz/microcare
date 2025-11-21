@@ -1,6 +1,12 @@
 /**
  * Centralized API Client with Token Management
  * Handles automatic JWT token injection, error handling, and 401 responses
+ * 
+ * Security Features:
+ * - Automatic token refresh on expiration
+ * - Tokens never logged or exposed in console
+ * - Secure token storage with expiration tracking
+ * - Automatic 401 handling with token refresh retry
  */
 
 export interface ApiError {
@@ -22,9 +28,20 @@ export interface RequestConfig {
   skipAuth?: boolean;
 }
 
+interface TokenPayload {
+  userId: string;
+  email: string;
+  iat: number;
+  exp: number;
+}
+
 class ApiClient {
   private baseUrl: string;
   private tokenKey = 'jwt';
+  private refreshTokenKey = 'refreshToken';
+  private tokenExpirationKey = 'tokenExpiration';
+  private isRefreshing = false;
+  private refreshPromise: Promise<string | null> | null = null;
 
   constructor(baseUrl?: string) {
     this.baseUrl = baseUrl || import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -38,21 +55,132 @@ class ApiClient {
   }
 
   /**
-   * Clear the stored JWT token
+   * Get the stored refresh token
    */
-  private clearToken(): void {
-    localStorage.removeItem(this.tokenKey);
+  private getRefreshToken(): string | null {
+    return localStorage.getItem(this.refreshTokenKey);
   }
 
   /**
-   * Set the JWT token
+   * Clear all stored tokens
    */
-  setToken(token: string): void {
+  private clearTokens(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.refreshTokenKey);
+    localStorage.removeItem(this.tokenExpirationKey);
+  }
+
+  /**
+   * Set the JWT token and refresh token
+   */
+  setToken(token: string, refreshToken?: string): void {
     localStorage.setItem(this.tokenKey, token);
+    if (refreshToken) {
+      localStorage.setItem(this.refreshTokenKey, refreshToken);
+    }
+    // Store token expiration time for early refresh detection
+    const expirationTime = this.getTokenExpiration(token);
+    if (expirationTime) {
+      localStorage.setItem(this.tokenExpirationKey, expirationTime.toString());
+    }
+  }
+
+  /**
+   * Decode JWT token to extract payload (without verification)
+   * Used only for client-side expiration checking
+   */
+  private decodeToken(token: string): TokenPayload | null {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+
+      const decoded = JSON.parse(atob(parts[1]));
+      return decoded as TokenPayload;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Get token expiration time in milliseconds
+   */
+  private getTokenExpiration(token: string): number | null {
+    const payload = this.decodeToken(token);
+    if (!payload || !payload.exp) return null;
+    return payload.exp * 1000; // Convert from seconds to milliseconds
+  }
+
+  /**
+   * Check if token is expired or about to expire (within 1 minute)
+   */
+  private isTokenExpired(token: string): boolean {
+    const expiration = this.getTokenExpiration(token);
+    if (!expiration) return true;
+
+    const now = Date.now();
+    const bufferTime = 60 * 1000; // 1 minute buffer
+
+    return now >= expiration - bufferTime;
+  }
+
+  /**
+   * Refresh the access token using refresh token
+   */
+  private async refreshAccessToken(): Promise<string | null> {
+    // Prevent multiple simultaneous refresh requests
+    if (this.isRefreshing) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+
+    this.refreshPromise = (async () => {
+      try {
+        const refreshToken = this.getRefreshToken();
+        if (!refreshToken) {
+          this.clearTokens();
+          return null;
+        }
+
+        const response = await fetch(`${this.baseUrl}/api/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ refreshToken }),
+        });
+
+        if (!response.ok) {
+          this.clearTokens();
+          return null;
+        }
+
+        const data = await response.json();
+        const newAccessToken = data.data?.accessToken;
+        const newRefreshToken = data.data?.refreshToken;
+
+        if (newAccessToken) {
+          this.setToken(newAccessToken, newRefreshToken);
+          return newAccessToken;
+        }
+
+        this.clearTokens();
+        return null;
+      } catch {
+        this.clearTokens();
+        return null;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
   }
 
   /**
    * Build request headers with automatic token injection
+   * Note: Token is never logged or exposed in console
    */
   private buildHeaders(config?: RequestConfig): Record<string, string> {
     const headers: Record<string, string> = {
@@ -64,6 +192,7 @@ class ApiClient {
     if (!config?.skipAuth) {
       const token = this.getToken();
       if (token) {
+        // Token is injected but never logged for security
         headers['Authorization'] = `Bearer ${token}`;
       }
     }
@@ -91,6 +220,7 @@ class ApiClient {
 
   /**
    * Parse error response and format consistently
+   * Ensures sensitive data (tokens, passwords) are never exposed in error messages
    */
   private parseError(response: Response, data: unknown): ApiError {
     // Try to extract error from response body
@@ -103,7 +233,7 @@ class ApiClient {
           message: (error.message as string) || 'An error occurred',
           statusCode: response.status,
           code: (error.code as string) || undefined,
-          details: (error.details as Record<string, unknown>) || undefined,
+          details: this.sanitizeErrorDetails(error.details as Record<string, unknown>) || undefined,
         };
       }
 
@@ -112,7 +242,7 @@ class ApiClient {
           message: errorObj.message as string,
           statusCode: response.status,
           code: (errorObj.code as string) || undefined,
-          details: (errorObj.details as Record<string, unknown>) || undefined,
+          details: this.sanitizeErrorDetails(errorObj.details as Record<string, unknown>) || undefined,
         };
       }
     }
@@ -125,16 +255,38 @@ class ApiClient {
   }
 
   /**
+   * Sanitize error details to prevent token/password exposure
+   */
+  private sanitizeErrorDetails(details?: Record<string, unknown>): Record<string, unknown> | undefined {
+    if (!details) return undefined;
+
+    const sanitized: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(details)) {
+      // Remove sensitive fields from error details
+      if (
+        key.toLowerCase().includes('token') ||
+        key.toLowerCase().includes('password') ||
+        key.toLowerCase().includes('secret')
+      ) {
+        continue;
+      }
+      sanitized[key] = value;
+    }
+
+    return Object.keys(sanitized).length > 0 ? sanitized : undefined;
+  }
+
+  /**
    * Handle 401 Unauthorized responses
    */
   private handle401(): void {
-    this.clearToken();
+    this.clearTokens();
     // Redirect to login page
     window.location.href = '/login';
   }
 
   /**
-   * Make HTTP request with error handling
+   * Make HTTP request with error handling and automatic token refresh
    */
   private async request<T>(
     method: string,
@@ -142,6 +294,16 @@ class ApiClient {
     body?: unknown,
     config?: RequestConfig
   ): Promise<T> {
+    // Check if token needs refresh before making request
+    const token = this.getToken();
+    if (token && !config?.skipAuth && this.isTokenExpired(token)) {
+      const newToken = await this.refreshAccessToken();
+      if (!newToken) {
+        this.handle401();
+        throw this.createError('Unauthorized. Please log in again.', 401);
+      }
+    }
+
     const fullUrl = `${this.baseUrl}${url}${this.buildQueryString(config?.params)}`;
     const headers = this.buildHeaders(config);
 
@@ -157,8 +319,13 @@ class ApiClient {
     try {
       const response = await fetch(fullUrl, fetchConfig);
 
-      // Handle 401 Unauthorized
-      if (response.status === 401) {
+      // Handle 401 Unauthorized - attempt token refresh
+      if (response.status === 401 && !config?.skipAuth) {
+        const newToken = await this.refreshAccessToken();
+        if (newToken) {
+          // Retry request with new token
+          return this.request<T>(method, url, body, config);
+        }
         this.handle401();
         throw this.createError('Unauthorized. Please log in again.', 401);
       }
