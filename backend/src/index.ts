@@ -7,20 +7,31 @@ import { swaggerSpec } from './config/swagger.js';
 import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { validateEnv, getEnvConfig } from './utils/env.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
 
 dotenv.config();
 
+// Validate environment variables on startup
+try {
+  validateEnv();
+} catch (error) {
+  console.error('Environment validation failed:');
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
+
 const app = express();
-const PORT = process.env.PORT || 3000;
+const envConfig = getEnvConfig();
+const PORT = envConfig.server.port;
 
 // Security middleware
 app.use(helmet());
 
 // CORS middleware with frontend domain whitelist
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',');
+const allowedOrigins = envConfig.cors.frontendUrl.split(',').map(url => url.trim());
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
