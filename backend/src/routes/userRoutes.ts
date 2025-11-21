@@ -93,6 +93,7 @@ const router = Router();
  *                 example: Jane Doe
  *               email:
  *                 type: string
+ * 
  *                 format: email
  *                 example: newemail@example.com
  *     responses:

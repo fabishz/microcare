@@ -26,9 +26,51 @@ try {
 const app = express();
 const envConfig = getEnvConfig();
 const PORT = envConfig.server.port;
+const isProduction = envConfig.server.nodeEnv === 'production';
 
-// Security middleware
-app.use(helmet());
+// Trust proxy for HTTPS enforcement behind load balancers
+if (envConfig.security.trustProxy) {
+  app.set('trust proxy', 1);
+}
+
+// HTTPS enforcement middleware for production
+if (envConfig.security.httpsOnly) {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https' && !req.secure) {
+      res.redirect(301, `https://${req.header('host')}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
+
+// Security middleware with comprehensive headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      connectSrc: ["'self'", envConfig.cors.frontendUrl],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: true,
+  crossOriginOpenerPolicy: true,
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  dnsPrefetchControl: true,
+  frameguard: { action: 'deny' },
+  hidePoweredBy: true,
+  hsts: isProduction ? { maxAge: 31536000, includeSubDomains: true, preload: true } : false,
+  ieNoOpen: true,
+  noSniff: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+  xssFilter: true,
+}));
 
 // CORS middleware with frontend domain whitelist
 const allowedOrigins = envConfig.cors.frontendUrl.split(',').map(url => url.trim());
@@ -43,7 +85,25 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
 }));
+
+// Secure cookie settings middleware
+app.use((_req, res, next) => {
+  // Wrap the cookie method to apply secure defaults
+  const originalCookie = res.cookie.bind(res);
+  res.cookie = function(name: string, val: string, options: any = {}) {
+    const cookieOptions = {
+      ...options,
+      httpOnly: true, // Prevent XSS attacks
+      secure: isProduction || envConfig.security.httpsOnly, // HTTPS only in production
+      sameSite: 'strict' as const, // CSRF protection
+      path: '/',
+    };
+    return originalCookie(name, val, cookieOptions);
+  };
+  next();
+});
 
 // Request body parsing middleware
 app.use(express.json({ limit: '10mb' }));

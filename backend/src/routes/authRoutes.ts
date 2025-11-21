@@ -69,7 +69,7 @@ const router = Router();
  *                   format: date-time
  *       400:
  *         description: Validation error - missing or invalid fields
- *         content:
+ *         content: 
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'

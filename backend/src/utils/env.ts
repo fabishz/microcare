@@ -20,6 +20,10 @@ interface EnvConfig {
   cors: {
     frontendUrl: string;
   };
+  security: {
+    httpsOnly: boolean;
+    trustProxy: boolean;
+  };
 }
 
 /**
@@ -67,6 +71,10 @@ export function validateEnv(): EnvConfig {
     );
   }
 
+  const nodeEnv = process.env.NODE_ENV!;
+  const httpsOnly = nodeEnv === 'production' || process.env.HTTPS_ONLY === 'true';
+  const trustProxy = nodeEnv === 'production' || process.env.TRUST_PROXY === 'true';
+
   return {
     database: {
       url: process.env.DATABASE_URL!,
@@ -79,10 +87,14 @@ export function validateEnv(): EnvConfig {
     },
     server: {
       port,
-      nodeEnv: process.env.NODE_ENV!,
+      nodeEnv,
     },
     cors: {
       frontendUrl: process.env.FRONTEND_URL!,
+    },
+    security: {
+      httpsOnly,
+      trustProxy,
     },
   };
 }
