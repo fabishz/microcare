@@ -7,6 +7,7 @@ import { swaggerSpec } from './config/swagger.js';
 import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import { sanitizeRequestBody, sanitizeQueryParams, sanitizeUrlParams } from './middleware/validationMiddleware.js';
 import { validateEnv, getEnvConfig } from './utils/env.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -108,6 +109,12 @@ app.use((_req, res, next) => {
 // Request body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// Input sanitization middleware (prevent XSS and injection attacks)
+// Requirements: 4.1, 4.2
+app.use(sanitizeRequestBody);
+app.use(sanitizeQueryParams);
+app.use(sanitizeUrlParams);
 
 // Request logging middleware
 app.use(requestLogger);
