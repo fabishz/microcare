@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiClient, ApiError } from '../lib/apiClient';
 
 interface User {
   id: string;
@@ -9,9 +10,11 @@ interface User {
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  error: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,81 +22,96 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for stored JWT on mount
     const token = localStorage.getItem('jwt');
     if (token) {
-      // In production, validate token and fetch user profile
-      fetchUserProfile(token);
+      // Validate token and fetch user profile
+      apiClient.setToken(token);
+      fetchUserProfile();
     } else {
       setIsLoading(false);
     }
   }, []);
 
-  const fetchUserProfile = async (token: string) => {
+  const fetchUserProfile = async () => {
     try {
-      const response = await fetch('/api/users/profile', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-      } else {
+      const userData = await apiClient.get<User>('/api/users/profile');
+      setUser(userData);
+      setError(null);
+    } catch (err) {
+      const apiError = err as ApiError;
+      // Clear token on 401 (handled by apiClient redirect)
+      if (apiError.statusCode === 401) {
         localStorage.removeItem('jwt');
+        setUser(null);
+      } else {
+        console.error('Failed to fetch user profile:', apiError.message);
+        setError('Failed to load user profile');
       }
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
-      localStorage.removeItem('jwt');
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('/api/users/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    setError(null);
+    setIsLoading(true);
+    try {
+      const response = await apiClient.post<{ token: string; user: User }>(
+        '/api/auth/login',
+        { email, password },
+        { skipAuth: true }
+      );
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
+      apiClient.setToken(response.token);
+      setUser(response.user);
+    } catch (err) {
+      const apiError = err as ApiError;
+      const errorMessage = apiError.message || 'Login failed. Please try again.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-    localStorage.setItem('jwt', data.token);
-    setUser(data.user);
   };
 
   const register = async (name: string, email: string, password: string) => {
-    const response = await fetch('/api/users/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
+    setError(null);
+    setIsLoading(true);
+    try {
+      const response = await apiClient.post<{ token: string; user: User }>(
+        '/api/auth/register',
+        { name, email, password },
+        { skipAuth: true }
+      );
 
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
+      apiClient.setToken(response.token);
+      setUser(response.user);
+    } catch (err) {
+      const apiError = err as ApiError;
+      const errorMessage = apiError.message || 'Registration failed. Please try again.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.json();
-    localStorage.setItem('jwt', data.token);
-    setUser(data.user);
   };
 
   const logout = () => {
     localStorage.removeItem('jwt');
     setUser(null);
+    setError(null);
+  };
+
+  const clearError = () => {
+    setError(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, error, login, register, logout, clearError }}>
       {children}
     </AuthContext.Provider>
   );
