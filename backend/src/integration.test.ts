@@ -881,4 +881,67 @@ describe('Integration Tests - MicroCare API', () => {
       expect(response.body.error).toBeDefined();
     });
   });
+
+  describe('CORS Configuration', () => {
+    it('should allow requests from whitelisted frontend URL', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .set('Origin', 'http://localhost:5173')
+        .expect(200);
+
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+    });
+
+    it('should include credentials in CORS headers', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .set('Origin', 'http://localhost:5173')
+        .expect(200);
+
+      expect(response.headers['access-control-allow-credentials']).toBe('true');
+    });
+
+    it('should allow OPTIONS requests for preflight', async () => {
+      const response = await request(app)
+        .options('/api/health')
+        .set('Origin', 'http://localhost:5173')
+        .set('Access-Control-Request-Method', 'POST')
+        .set('Access-Control-Request-Headers', 'Content-Type,Authorization')
+        .expect(200);
+
+      expect(response.headers['access-control-allow-origin']).toBe('http://localhost:5173');
+      expect(response.headers['access-control-allow-methods']).toBeDefined();
+      expect(response.headers['access-control-allow-headers']).toBeDefined();
+    });
+
+    it('should include Authorization header in allowed headers', async () => {
+      const response = await request(app)
+        .options('/api/health')
+        .set('Origin', 'http://localhost:5173')
+        .set('Access-Control-Request-Method', 'POST')
+        .set('Access-Control-Request-Headers', 'Content-Type,Authorization')
+        .expect(200);
+
+      const allowedHeaders = response.headers['access-control-allow-headers'];
+      expect(allowedHeaders).toContain('Authorization');
+    });
+
+    it('should reject requests from non-whitelisted origins', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .set('Origin', 'http://malicious-site.com')
+        .expect(200);
+
+      // CORS rejection happens at browser level, but we can verify the header is not set
+      expect(response.headers['access-control-allow-origin']).not.toBe('http://malicious-site.com');
+    });
+
+    it('should allow requests without Origin header', async () => {
+      const response = await request(app)
+        .get('/api/health')
+        .expect(200);
+
+      expect(response.body.status).toBeDefined();
+    });
+  });
 });
