@@ -47,6 +47,13 @@ export interface JWTPayload {
   exp: number;
 }
 
+export interface RefreshTokenPayload {
+  userId: string;
+  type: 'refresh';
+  iat: number;
+  exp: number;
+}
+
 export interface UpdateProfileRequest {
   name?: string;
   email?: string;
