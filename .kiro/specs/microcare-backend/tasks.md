@@ -69,7 +69,7 @@
 
 ## Phase 3: User Profile Management
 
-- [ ] 10. Create UserRepository for database operations
+- [x] 10. Create UserRepository for database operations
   - Implement findById query
   - Implement findByEmail query
   - Implement create user query
