@@ -14,4 +14,9 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    // Expose environment variables to the frontend
+    __VITE_API_URL__: JSON.stringify(process.env.VITE_API_URL || 'http://localhost:3000'),
+    __VITE_APP_NAME__: JSON.stringify(process.env.VITE_APP_NAME || 'MicroCare'),
+  },
 }));
