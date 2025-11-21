@@ -93,7 +93,7 @@
 
 ## Phase 4: Journal Entry Management
 
-- [ ] 13. Create EntryRepository for journal entry database operations
+- [x] 13. Create EntryRepository for journal entry database operations
   - Implement create entry query
   - Implement findById query with ownership verification
   - Implement findByUserId query with pagination
@@ -102,7 +102,7 @@
   - Add indexes for performance optimization
   - _Requirements: 5.1, 5.4, 5.5_
 
-- [ ] 14. Implement EntryService with CRUD logic
+- [x] 14. Implement EntryService with CRUD logic
   - Create createEntry service with validation
   - Create getEntry service with ownership check
   - Create getUserEntries service with pagination support
