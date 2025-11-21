@@ -7,6 +7,7 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import entryRoutes from './routes/entryRoutes.js';
 
 dotenv.config();
 
@@ -53,6 +54,9 @@ app.use('/api/auth', authRoutes);
 
 // User profile routes
 app.use('/api/users', userRoutes);
+
+// Journal entry routes
+app.use('/api/entries', entryRoutes);
 
 // 404 Not Found middleware (place before error handler)
 app.use(notFoundHandler);
