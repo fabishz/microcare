@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
+import { runPendingMigrations } from './utils/migrations.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { sanitizeRequestBody, sanitizeQueryParams, sanitizeUrlParams } from './middleware/validationMiddleware.js';
@@ -159,6 +160,18 @@ async function startServer() {
   try {
     // Connect to database
     await connectDatabase();
+
+    // Run pending database migrations
+    // Requirements: 6.1, 6.4
+    try {
+      console.log('Running database migrations...');
+      await runPendingMigrations();
+    } catch (migrationError) {
+      console.error('✗ Failed to run database migrations:', migrationError instanceof Error ? migrationError.message : String(migrationError));
+      console.error('Server startup aborted due to migration failure');
+      await disconnectDatabase();
+      process.exit(1);
+    }
 
     const server = app.listen(PORT, () => {
       console.log(`✓ Server running on port ${PORT}`);
