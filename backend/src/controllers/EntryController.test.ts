@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { ApiError } from '../utils/errors.js';
 import EntryController from './EntryController.js';
 import EntryService from '../services/EntryService.js';
 

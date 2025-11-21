@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import { ApiError } from '../utils/errors.js';
 import UserController from './UserController.js';
 import UserService from '../services/UserService.js';
 import { it } from 'node:test';

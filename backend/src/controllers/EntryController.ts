@@ -1,6 +1,12 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import {
+  ApiError,
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+} from '../utils/errors.js';
 import EntryService from '../services/EntryService.js';
 
 /**
@@ -29,14 +35,14 @@ export class EntryController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { title, content, mood, tags } = req.body;
 
       // Validate required fields
       if (!title || !content) {
-        throw new ApiError(400, 'Missing required fields', {
+        throw new ValidationError('Missing required fields', {
           title: !title ? 'Title is required' : undefined,
           content: !content ? 'Content is required' : undefined,
         });
@@ -44,29 +50,29 @@ export class EntryController {
 
       // Validate title is a string
       if (typeof title !== 'string') {
-        throw new ApiError(400, 'Title must be a string', { title: 'Title must be a string' });
+        throw new ValidationError('Title must be a string', { title: 'Title must be a string' });
       }
 
       // Validate content is a string
       if (typeof content !== 'string') {
-        throw new ApiError(400, 'Content must be a string', { content: 'Content must be a string' });
+        throw new ValidationError('Content must be a string', { content: 'Content must be a string' });
       }
 
       // Validate mood if provided
       if (mood !== undefined) {
         if (typeof mood !== 'string') {
-          throw new ApiError(400, 'Mood must be a string', { mood: 'Mood must be a string' });
+          throw new ValidationError('Mood must be a string', { mood: 'Mood must be a string' });
         }
       }
 
       // Validate tags if provided
       if (tags !== undefined) {
         if (!Array.isArray(tags)) {
-          throw new ApiError(400, 'Tags must be an array', { tags: 'Tags must be an array' });
+          throw new ValidationError('Tags must be an array', { tags: 'Tags must be an array' });
         }
 
         if (!tags.every((tag) => typeof tag === 'string')) {
-          throw new ApiError(400, 'All tags must be strings', { tags: 'All tags must be strings' });
+          throw new ValidationError('All tags must be strings', { tags: 'All tags must be strings' });
         }
       }
 
@@ -90,11 +96,11 @@ export class EntryController {
 
       if (error instanceof Error) {
         if (error.message.includes('required') || error.message.includes('Invalid') || error.message.includes('must be')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to create entry');
+      throw new ApiError(500, 'Failed to create entry', 'ENTRY_CREATION_FAILED');
     }
   }
 
@@ -109,7 +115,7 @@ export class EntryController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       // Get pagination parameters from query string
@@ -120,21 +126,21 @@ export class EntryController {
 
       // Validate pagination parameters
       if (page < 1) {
-        throw new ApiError(400, 'Page must be greater than 0', { page: 'Page must be greater than 0' });
+        throw new ValidationError('Page must be greater than 0', { page: 'Page must be greater than 0' });
       }
 
       if (limit < 1 || limit > 100) {
-        throw new ApiError(400, 'Limit must be between 1 and 100', { limit: 'Limit must be between 1 and 100' });
+        throw new ValidationError('Limit must be between 1 and 100', { limit: 'Limit must be between 1 and 100' });
       }
 
       // Validate sortBy parameter
       if (sortBy !== 'createdAt' && sortBy !== 'updatedAt') {
-        throw new ApiError(400, 'Invalid sortBy parameter', { sortBy: 'Must be createdAt or updatedAt' });
+        throw new ValidationError('Invalid sortBy parameter', { sortBy: 'Must be createdAt or updatedAt' });
       }
 
       // Validate order parameter
       if (order !== 'asc' && order !== 'desc') {
-        throw new ApiError(400, 'Invalid order parameter', { order: 'Must be asc or desc' });
+        throw new ValidationError('Invalid order parameter', { order: 'Must be asc or desc' });
       }
 
       // Get entries through service
@@ -158,11 +164,11 @@ export class EntryController {
 
       if (error instanceof Error) {
         if (error.message.includes('required') || error.message.includes('must be') || error.message.includes('greater')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to retrieve entries');
+      throw new ApiError(500, 'Failed to retrieve entries', 'ENTRIES_RETRIEVAL_FAILED');
     }
   }
 
@@ -180,14 +186,14 @@ export class EntryController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { id } = req.params;
 
       // Validate entry ID is provided
       if (!id) {
-        throw new ApiError(400, 'Entry ID is required');
+        throw new ValidationError('Entry ID is required');
       }
 
       // Get entry through service (includes ownership check)
@@ -205,19 +211,19 @@ export class EntryController {
 
       if (error instanceof Error) {
         if (error.message.includes('access denied')) {
-          throw new ApiError(403, 'Access denied');
+          throw new AuthorizationError('Access denied');
         }
 
         if (error.message.includes('not found')) {
-          throw new ApiError(404, 'Entry not found');
+          throw new NotFoundError('Entry not found');
         }
 
         if (error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to retrieve entry');
+      throw new ApiError(500, 'Failed to retrieve entry', 'ENTRY_RETRIEVAL_FAILED');
     }
   }
 
@@ -235,7 +241,7 @@ export class EntryController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { id } = req.params;
@@ -243,43 +249,43 @@ export class EntryController {
 
       // Validate entry ID is provided
       if (!id) {
-        throw new ApiError(400, 'Entry ID is required');
+        throw new ValidationError('Entry ID is required');
       }
 
       // Validate that at least one field is provided
       if (title === undefined && content === undefined && mood === undefined && tags === undefined) {
-        throw new ApiError(400, 'At least one field must be provided for update');
+        throw new ValidationError('At least one field must be provided for update');
       }
 
       // Validate title if provided
       if (title !== undefined) {
         if (typeof title !== 'string') {
-          throw new ApiError(400, 'Title must be a string', { title: 'Title must be a string' });
+          throw new ValidationError('Title must be a string', { title: 'Title must be a string' });
         }
       }
 
       // Validate content if provided
       if (content !== undefined) {
         if (typeof content !== 'string') {
-          throw new ApiError(400, 'Content must be a string', { content: 'Content must be a string' });
+          throw new ValidationError('Content must be a string', { content: 'Content must be a string' });
         }
       }
 
       // Validate mood if provided
       if (mood !== undefined) {
         if (typeof mood !== 'string') {
-          throw new ApiError(400, 'Mood must be a string', { mood: 'Mood must be a string' });
+          throw new ValidationError('Mood must be a string', { mood: 'Mood must be a string' });
         }
       }
 
       // Validate tags if provided
       if (tags !== undefined) {
         if (!Array.isArray(tags)) {
-          throw new ApiError(400, 'Tags must be an array', { tags: 'Tags must be an array' });
+          throw new ValidationError('Tags must be an array', { tags: 'Tags must be an array' });
         }
 
         if (!tags.every((tag) => typeof tag === 'string')) {
-          throw new ApiError(400, 'All tags must be strings', { tags: 'All tags must be strings' });
+          throw new ValidationError('All tags must be strings', { tags: 'All tags must be strings' });
         }
       }
 
@@ -303,19 +309,19 @@ export class EntryController {
 
       if (error instanceof Error) {
         if (error.message.includes('access denied')) {
-          throw new ApiError(403, 'Access denied');
+          throw new AuthorizationError('Access denied');
         }
 
         if (error.message.includes('not found')) {
-          throw new ApiError(404, 'Entry not found');
+          throw new NotFoundError('Entry not found');
         }
 
         if (error.message.includes('required') || error.message.includes('must be') || error.message.includes('Invalid')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to update entry');
+      throw new ApiError(500, 'Failed to update entry', 'ENTRY_UPDATE_FAILED');
     }
   }
 
@@ -333,14 +339,14 @@ export class EntryController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { id } = req.params;
 
       // Validate entry ID is provided
       if (!id) {
-        throw new ApiError(400, 'Entry ID is required');
+        throw new ValidationError('Entry ID is required');
       }
 
       // Delete entry through service (includes ownership check)
@@ -354,19 +360,19 @@ export class EntryController {
 
       if (error instanceof Error) {
         if (error.message.includes('access denied')) {
-          throw new ApiError(403, 'Access denied');
+          throw new AuthorizationError('Access denied');
         }
 
         if (error.message.includes('not found')) {
-          throw new ApiError(404, 'Entry not found');
+          throw new NotFoundError('Entry not found');
         }
 
         if (error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to delete entry');
+      throw new ApiError(500, 'Failed to delete entry', 'ENTRY_DELETION_FAILED');
     }
   }
 }

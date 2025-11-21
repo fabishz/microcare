@@ -1,6 +1,12 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import {
+  ApiError,
+  ValidationError,
+  AuthenticationError,
+  AuthorizationError,
+  NotFoundError,
+} from '../utils/errors.js';
 import UserService from '../services/UserService.js';
 
 /**
@@ -27,7 +33,7 @@ export class UserController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       // Get user profile from service
@@ -45,15 +51,15 @@ export class UserController {
 
       if (error instanceof Error) {
         if (error.message.includes('User not found')) {
-          throw new ApiError(404, error.message);
+          throw new NotFoundError(error.message);
         }
 
         if (error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to retrieve profile');
+      throw new ApiError(500, 'Failed to retrieve profile', 'PROFILE_RETRIEVAL_FAILED');
     }
   }
 
@@ -74,35 +80,35 @@ export class UserController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { name, email } = req.body;
 
       // Validate that at least one field is provided
       if (name === undefined && email === undefined) {
-        throw new ApiError(400, 'At least one field (name or email) must be provided');
+        throw new ValidationError('At least one field (name or email) must be provided');
       }
 
       // Validate name if provided
       if (name !== undefined) {
         if (typeof name !== 'string') {
-          throw new ApiError(400, 'Name must be a string', { name: 'Name must be a string' });
+          throw new ValidationError('Name must be a string', { name: 'Name must be a string' });
         }
 
         if (name.trim().length === 0) {
-          throw new ApiError(400, 'Name cannot be empty', { name: 'Name cannot be empty' });
+          throw new ValidationError('Name cannot be empty', { name: 'Name cannot be empty' });
         }
       }
 
       // Validate email if provided
       if (email !== undefined) {
         if (typeof email !== 'string') {
-          throw new ApiError(400, 'Email must be a string', { email: 'Email must be a string' });
+          throw new ValidationError('Email must be a string', { email: 'Email must be a string' });
         }
 
         if (!email.includes('@') || !email.includes('.')) {
-          throw new ApiError(400, 'Invalid email format', { email: 'Invalid email format' });
+          throw new ValidationError('Invalid email format', { email: 'Invalid email format' });
         }
       }
 
@@ -125,19 +131,19 @@ export class UserController {
 
       if (error instanceof Error) {
         if (error.message.includes('Unauthorized')) {
-          throw new ApiError(403, error.message);
+          throw new AuthorizationError(error.message);
         }
 
         if (error.message.includes('User not found')) {
-          throw new ApiError(404, error.message);
+          throw new NotFoundError(error.message);
         }
 
         if (error.message.includes('Invalid') || error.message.includes('empty') || error.message.includes('already')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to update profile');
+      throw new ApiError(500, 'Failed to update profile', 'PROFILE_UPDATE_FAILED');
     }
   }
 
@@ -152,14 +158,14 @@ export class UserController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       const { currentPassword, newPassword } = req.body;
 
       // Validate required fields
       if (!currentPassword || !newPassword) {
-        throw new ApiError(400, 'Missing required fields', {
+        throw new ValidationError('Missing required fields', {
           currentPassword: !currentPassword ? 'Current password is required' : undefined,
           newPassword: !newPassword ? 'New password is required' : undefined,
         });
@@ -167,7 +173,7 @@ export class UserController {
 
       // Validate both are strings
       if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
-        throw new ApiError(400, 'Passwords must be strings');
+        throw new ValidationError('Passwords must be strings');
       }
 
       // Change password through service (includes authorization check)
@@ -189,19 +195,19 @@ export class UserController {
 
       if (error instanceof Error) {
         if (error.message.includes('Unauthorized')) {
-          throw new ApiError(403, error.message);
+          throw new AuthorizationError(error.message);
         }
 
         if (error.message.includes('User not found')) {
-          throw new ApiError(404, error.message);
+          throw new NotFoundError(error.message);
         }
 
         if (error.message.includes('incorrect') || error.message.includes('Invalid') || error.message.includes('required') || error.message.includes('different')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Failed to change password');
+      throw new ApiError(500, 'Failed to change password', 'PASSWORD_CHANGE_FAILED');
     }
   }
 }

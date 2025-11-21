@@ -110,7 +110,7 @@
   - Create deleteEntry service with ownership verification
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
 
-- [ ] 15. Create EntryController and journal entry routes
+- [x] 15. Create EntryController and journal entry routes
   - Implement POST /api/entries endpoint
   - Implement GET /api/entries endpoint with pagination
   - Implement GET /api/entries/:id endpoint
@@ -122,14 +122,14 @@
 
 ## Phase 5: Validation and Error Handling
 
-- [ ] 16. Create input validation utilities and schemas
+- [x] 16. Create input validation utilities and schemas
   - Create email validation function
   - Create password validation function
   - Create journal entry validation schemas
   - Create user profile validation schemas
   - _Requirements: 4.1, 4.2_
 
-- [ ] 17. Implement comprehensive error handling
+- [x] 17. Implement comprehensive error handling
   - Create custom error classes (ValidationError, AuthError, NotFoundError, etc.)
   - Implement error response formatter
   - Add error logging to global error handler

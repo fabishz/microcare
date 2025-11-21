@@ -1,6 +1,11 @@
 import { Response } from 'express';
 import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { ApiError } from '../middleware/errorHandler.js';
+import {
+  ApiError,
+  ValidationError,
+  AuthenticationError,
+  ConflictError,
+} from '../utils/errors.js';
 import AuthService from '../services/AuthService.js';
 import { verifyRefreshToken, generateTokenPair } from '../utils/jwt.js';
 
@@ -30,7 +35,7 @@ export class AuthController {
 
       // Validate required fields
       if (!email || !password || !name) {
-        throw new ApiError(400, 'Missing required fields', {
+        throw new ValidationError('Missing required fields', {
           email: !email ? 'Email is required' : undefined,
           password: !password ? 'Password is required' : undefined,
           name: !name ? 'Name is required' : undefined,
@@ -39,17 +44,17 @@ export class AuthController {
 
       // Validate email format
       if (typeof email !== 'string' || !email.includes('@')) {
-        throw new ApiError(400, 'Invalid email format');
+        throw new ValidationError('Invalid email format', { email: 'Invalid email format' });
       }
 
       // Validate password is a string
       if (typeof password !== 'string') {
-        throw new ApiError(400, 'Password must be a string');
+        throw new ValidationError('Password must be a string', { password: 'Password must be a string' });
       }
 
       // Validate name is a string
       if (typeof name !== 'string') {
-        throw new ApiError(400, 'Name must be a string');
+        throw new ValidationError('Name must be a string', { name: 'Name must be a string' });
       }
 
       // Call AuthService to register user
@@ -68,15 +73,15 @@ export class AuthController {
       if (error instanceof Error) {
         // Map service errors to appropriate HTTP status codes
         if (error.message.includes('already registered')) {
-          throw new ApiError(409, error.message);
+          throw new ConflictError(error.message);
         }
 
         if (error.message.includes('Invalid') || error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Registration failed');
+      throw new ApiError(500, 'Registration failed', 'REGISTRATION_FAILED');
     }
   }
 
@@ -93,7 +98,7 @@ export class AuthController {
 
       // Validate required fields
       if (!email || !password) {
-        throw new ApiError(400, 'Missing required fields', {
+        throw new ValidationError('Missing required fields', {
           email: !email ? 'Email is required' : undefined,
           password: !password ? 'Password is required' : undefined,
         });
@@ -101,12 +106,12 @@ export class AuthController {
 
       // Validate email format
       if (typeof email !== 'string' || !email.includes('@')) {
-        throw new ApiError(400, 'Invalid email format');
+        throw new ValidationError('Invalid email format', { email: 'Invalid email format' });
       }
 
       // Validate password is a string
       if (typeof password !== 'string') {
-        throw new ApiError(400, 'Password must be a string');
+        throw new ValidationError('Password must be a string', { password: 'Password must be a string' });
       }
 
       // Call AuthService to login user
@@ -125,15 +130,15 @@ export class AuthController {
       if (error instanceof Error) {
         // Map service errors to appropriate HTTP status codes
         if (error.message.includes('Invalid email or password')) {
-          throw new ApiError(401, 'Invalid email or password');
+          throw new AuthenticationError('Invalid email or password');
         }
 
         if (error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Login failed');
+      throw new ApiError(500, 'Login failed', 'LOGIN_FAILED');
     }
   }
 
@@ -151,7 +156,7 @@ export class AuthController {
     try {
       // Verify user is authenticated
       if (!req.user) {
-        throw new ApiError(401, 'Not authenticated');
+        throw new AuthenticationError('Not authenticated');
       }
 
       // Return success response
@@ -167,7 +172,7 @@ export class AuthController {
         throw error;
       }
 
-      throw new ApiError(500, 'Logout failed');
+      throw new ApiError(500, 'Logout failed', 'LOGOUT_FAILED');
     }
   }
 
@@ -184,12 +189,12 @@ export class AuthController {
 
       // Validate refresh token is provided
       if (!refreshToken) {
-        throw new ApiError(400, 'Refresh token is required');
+        throw new ValidationError('Refresh token is required', { refreshToken: 'Refresh token is required' });
       }
 
       // Validate refresh token is a string
       if (typeof refreshToken !== 'string') {
-        throw new ApiError(400, 'Refresh token must be a string');
+        throw new ValidationError('Refresh token must be a string', { refreshToken: 'Refresh token must be a string' });
       }
 
       // Verify refresh token
@@ -217,15 +222,15 @@ export class AuthController {
       if (error instanceof Error) {
         // Map JWT verification errors
         if (error.message.includes('expired') || error.message.includes('Invalid')) {
-          throw new ApiError(401, error.message);
+          throw new AuthenticationError(error.message);
         }
 
         if (error.message.includes('required')) {
-          throw new ApiError(400, error.message);
+          throw new ValidationError(error.message);
         }
       }
 
-      throw new ApiError(500, 'Token refresh failed');
+      throw new ApiError(500, 'Token refresh failed', 'TOKEN_REFRESH_FAILED');
     }
   }
 }
