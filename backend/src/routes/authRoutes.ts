@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import AuthController from '../controllers/AuthController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.js';
 
 /**
  * Authentication Routes
@@ -57,9 +58,10 @@ function asyncHandler(
  * Error responses:
  * - 400 Bad Request: Missing or invalid fields
  * - 409 Conflict: Email already registered
+ * - 429 Too Many Requests: Rate limit exceeded
  * - 500 Internal Server Error: Server error
  */
-router.post('/register', asyncHandler(AuthController.register.bind(AuthController)));
+router.post('/register', registerLimiter, asyncHandler(AuthController.register.bind(AuthController)));
 
 /**
  * POST /api/auth/login
@@ -91,9 +93,10 @@ router.post('/register', asyncHandler(AuthController.register.bind(AuthControlle
  * Error responses:
  * - 400 Bad Request: Missing or invalid fields
  * - 401 Unauthorized: Invalid email or password
+ * - 429 Too Many Requests: Rate limit exceeded
  * - 500 Internal Server Error: Server error
  */
-router.post('/login', asyncHandler(AuthController.login.bind(AuthController)));
+router.post('/login', loginLimiter, asyncHandler(AuthController.login.bind(AuthController)));
 
 /**
  * POST /api/auth/logout

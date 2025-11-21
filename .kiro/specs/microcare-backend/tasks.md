@@ -136,7 +136,7 @@
   - Ensure all errors return appropriate HTTP status codes
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 18. Add rate limiting to authentication endpoints
+- [x] 18. Add rate limiting to authentication endpoints
   - Install rate limiting middleware
   - Configure rate limiting for /api/auth/login and /api/auth/register
   - Return 429 status code when limit exceeded

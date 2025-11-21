@@ -105,7 +105,7 @@ export function errorHandler(
  * 
  * Requirement 4.4: WHEN a resource is not found, THE system SHALL return HTTP 404 Not Found
  */
-export function notFoundHandler(req: Request, res: Response): void {
+export function notFoundHandler(_req: Request, res: Response): void {
   const timestamp = new Date().toISOString();
 
   const errorResponse: ErrorResponse = {
