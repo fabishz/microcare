@@ -1,6 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import EntryController from '../controllers/EntryController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import {
+  createEntrySchema,
+  updateEntrySchema,
+} from '../utils/validators.js';
 
 /**
  * Journal Entry Routes
@@ -445,6 +450,8 @@ function asyncHandler(
 router.post(
   '/',
   authMiddleware,
+  sanitizeRequestBody,
+  validateRequest(createEntrySchema),
   asyncHandler(EntryController.createEntry.bind(EntryController))
 );
 
@@ -587,6 +594,8 @@ router.get(
 router.put(
   '/:id',
   authMiddleware,
+  sanitizeRequestBody,
+  validateRequest(updateEntrySchema),
   asyncHandler(EntryController.updateEntry.bind(EntryController))
 );
 

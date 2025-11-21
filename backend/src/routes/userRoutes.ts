@@ -1,6 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import UserController from '../controllers/UserController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
+import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import {
+  updateProfileSchema,
+  changePasswordSchema,
+} from '../utils/validators.js';
 
 /**
  * User Profile Routes
@@ -300,6 +305,8 @@ router.get(
 router.put(
   '/profile',
   authMiddleware,
+  sanitizeRequestBody,
+  validateRequest(updateProfileSchema),
   asyncHandler(UserController.updateProfile.bind(UserController))
 );
 
@@ -341,6 +348,8 @@ router.put(
 router.post(
   '/change-password',
   authMiddleware,
+  sanitizeRequestBody,
+  validateRequest(changePasswordSchema),
   asyncHandler(UserController.changePassword.bind(UserController))
 );
 

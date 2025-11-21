@@ -2,6 +2,11 @@ import { Router, Request, Response, NextFunction } from 'express';
 import AuthController from '../controllers/AuthController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.js';
+import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import {
+  registrationSchema,
+  loginSchema,
+} from '../utils/validators.js';
 
 /**
  * Authentication Routes
@@ -388,7 +393,13 @@ function asyncHandler(
  * - 429 Too Many Requests: Rate limit exceeded
  * - 500 Internal Server Error: Server error
  */
-router.post('/register', registerLimiter, asyncHandler(AuthController.register.bind(AuthController)));
+router.post(
+  '/register',
+  registerLimiter,
+  sanitizeRequestBody,
+  validateRequest(registrationSchema),
+  asyncHandler(AuthController.register.bind(AuthController))
+);
 
 /**
  * POST /api/auth/login
@@ -423,7 +434,13 @@ router.post('/register', registerLimiter, asyncHandler(AuthController.register.b
  * - 429 Too Many Requests: Rate limit exceeded
  * - 500 Internal Server Error: Server error
  */
-router.post('/login', loginLimiter, asyncHandler(AuthController.login.bind(AuthController)));
+router.post(
+  '/login',
+  loginLimiter,
+  sanitizeRequestBody,
+  validateRequest(loginSchema),
+  asyncHandler(AuthController.login.bind(AuthController))
+);
 
 /**
  * POST /api/auth/logout
@@ -477,6 +494,10 @@ router.post(
  * - 401 Unauthorized: Invalid or expired refresh token
  * - 500 Internal Server Error: Server error
  */
-router.post('/refresh', asyncHandler(AuthController.refresh.bind(AuthController)));
+router.post(
+  '/refresh',
+  sanitizeRequestBody,
+  asyncHandler(AuthController.refresh.bind(AuthController))
+);
 
 export default router;
