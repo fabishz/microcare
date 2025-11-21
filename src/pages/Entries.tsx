@@ -7,60 +7,40 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Input } from '@/components/ui/input';
 import { BookOpen, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface JournalEntry {
-  id: string;
-  content: string;
-  insight?: string;
-  createdAt: string;
-}
+import { useEntries, JournalEntry } from '@/hooks/useEntries';
 
 export default function Entries() {
-  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [filteredEntries, setFilteredEntries] = useState<JournalEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { entries, isLoading, error, fetchEntries } = useEntries();
 
   useEffect(() => {
     fetchEntries();
   }, []);
 
   useEffect(() => {
+    if (error) {
+      toast({
+        title: 'Failed to load entries',
+        description: error,
+        variant: 'destructive',
+      });
+    }
+  }, [error, toast]);
+
+  useEffect(() => {
     if (searchQuery.trim()) {
       const filtered = entries.filter((entry) =>
-        entry.content.toLowerCase().includes(searchQuery.toLowerCase())
+        entry.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        entry.title.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredEntries(filtered);
     } else {
       setFilteredEntries(entries);
     }
   }, [searchQuery, entries]);
-
-  const fetchEntries = async () => {
-    try {
-      const response = await fetch('/api/entries/list', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch entries');
-
-      const data = await response.json();
-      setEntries(data);
-      setFilteredEntries(data);
-    } catch (error) {
-      toast({
-        title: 'Failed to load entries',
-        description: 'Please try again later.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   if (isLoading) {
     return (

@@ -7,6 +7,7 @@ import { InsightCard } from '@/components/InsightCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Calendar, Trash2, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEntries, JournalEntry } from '@/hooks/useEntries';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,46 +20,39 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
-interface JournalEntry {
-  id: string;
-  content: string;
-  insight?: string;
-  createdAt: string;
-}
-
 export default function EntryDetail() {
   const { id } = useParams<{ id: string }>();
   const [entry, setEntry] = useState<JournalEntry | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { getEntry, deleteEntry, isLoading, error } = useEntries();
 
   useEffect(() => {
-    // In production, fetch entry by ID
-    // For now, simulate with mock data
-    setTimeout(() => {
-      setEntry({
-        id: id || '1',
-        content: 'This is a sample journal entry. In production, this would be fetched from the backend.',
-        insight: 'This is a sample AI insight about your entry.',
-        createdAt: new Date().toISOString(),
-      });
-      setIsLoading(false);
-    }, 500);
-  }, [id]);
+    if (!id) return;
+
+    const loadEntry = async () => {
+      try {
+        const fetchedEntry = await getEntry(id);
+        setEntry(fetchedEntry);
+      } catch (err) {
+        toast({
+          title: 'Failed to load entry',
+          description: 'The entry could not be found.',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    loadEntry();
+  }, [id, getEntry, toast]);
 
   const handleDelete = async () => {
+    if (!id) return;
+
     setIsDeleting(true);
     try {
-      const response = await fetch(`/api/entries/delete/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        },
-      });
-
-      if (!response.ok) throw new Error('Failed to delete entry');
+      await deleteEntry(id);
 
       toast({
         title: 'Entry deleted',
@@ -66,10 +60,10 @@ export default function EntryDetail() {
       });
       
       navigate('/dashboard/entries');
-    } catch (error) {
+    } catch (err) {
       toast({
         title: 'Failed to delete entry',
-        description: 'Please try again.',
+        description: error || 'Please try again.',
         variant: 'destructive',
       });
     } finally {

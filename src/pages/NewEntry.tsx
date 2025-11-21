@@ -8,14 +8,15 @@ import { InsightCard } from '@/components/InsightCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Sparkles, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useEntries } from '@/hooks/useEntries';
 
 export default function NewEntry() {
   const [content, setContent] = useState('');
   const [insight, setInsight] = useState('');
   const [isGeneratingInsight, setIsGeneratingInsight] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { createEntry, isLoading: isSaving, error } = useEntries();
 
   const generateInsight = async () => {
     if (!content.trim()) {
@@ -68,18 +69,11 @@ export default function NewEntry() {
       return;
     }
 
-    setIsSaving(true);
     try {
-      const response = await fetch('/api/entries/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-        },
-        body: JSON.stringify({ content, insight }),
+      await createEntry({
+        title: content.split('\n')[0].substring(0, 100),
+        content,
       });
-
-      if (!response.ok) throw new Error('Failed to save entry');
 
       toast({
         title: 'Entry saved! 📝',
@@ -87,14 +81,12 @@ export default function NewEntry() {
       });
       
       navigate('/dashboard/entries');
-    } catch (error) {
+    } catch (err) {
       toast({
         title: 'Failed to save entry',
-        description: 'Please try again.',
+        description: error || 'Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsSaving(false);
     }
   };
 
