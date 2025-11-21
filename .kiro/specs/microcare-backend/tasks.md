@@ -59,7 +59,7 @@
   - Generate JWT tokens on successful authentication
   - _Requirements: 1.1, 1.2_
 
-- [ ] 9. Create AuthController and authentication routes
+- [x] 9. Create AuthController and authentication routes
   - Implement POST /api/auth/register endpoint
   - Implement POST /api/auth/login endpoint
   - Implement POST /api/auth/logout endpoint

@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
 dotenv.config();
 
@@ -45,6 +46,9 @@ app.get('/api/health', async (_req, res) => {
     timestamp: new Date().toISOString() 
   });
 });
+
+// Authentication routes
+app.use('/api/auth', authRoutes);
 
 // 404 Not Found middleware (place before error handler)
 app.use(notFoundHandler);
