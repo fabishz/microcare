@@ -151,14 +151,14 @@
   - Create /api/docs endpoint for Swagger UI
   - _Requirements: 6.1, 6.3, 6.4, 6.5_
 
-- [ ] 20. Implement unit tests for services
+- [x] 20. Implement unit tests for services
   - Write tests for AuthService (registration, login, token generation)
   - Write tests for UserService (profile operations, password changes)
   - Write tests for EntryService (CRUD operations, ownership checks)
   - Write tests for validation utilities
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 21. Implement integration tests for API endpoints
+- [x] 21. Implement integration tests for API endpoints
   - Write tests for authentication flow (register → login → access protected endpoint)
   - Write tests for user profile endpoints
   - Write tests for journal entry endpoints with pagination
