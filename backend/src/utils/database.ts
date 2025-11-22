@@ -67,3 +67,31 @@ export async function checkDatabaseHealth(): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Detailed health check with response time metrics
+ */
+export async function getDetailedHealthStatus(): Promise<{
+  status: 'healthy' | 'degraded' | 'unhealthy';
+  database: {
+    connected: boolean;
+    responseTime: number;
+  };
+  uptime: number;
+  timestamp: string;
+}> {
+  const startTime = Date.now();
+  const dbConnected = await checkDatabaseHealth();
+  const responseTime = Date.now() - startTime;
+  const uptime = process.uptime();
+
+  return {
+    status: dbConnected ? 'healthy' : 'degraded',
+    database: {
+      connected: dbConnected,
+      responseTime,
+    },
+    uptime,
+    timestamp: new Date().toISOString(),
+  };
+}

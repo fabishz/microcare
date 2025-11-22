@@ -4,11 +4,12 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
-import { connectDatabase, disconnectDatabase, checkDatabaseHealth } from './utils/database.js';
+import { connectDatabase, disconnectDatabase } from './utils/database.js';
 import { runPendingMigrations } from './utils/migrations.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { sanitizeRequestBody, sanitizeQueryParams, sanitizeUrlParams } from './middleware/validationMiddleware.js';
+import { metricsMiddleware } from './middleware/metricsMiddleware.js';
 import { validateEnv, getEnvConfig } from './utils/env.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
@@ -120,14 +121,67 @@ app.use(sanitizeUrlParams);
 // Request logging middleware
 app.use(requestLogger);
 
-// Health check endpoint
+// Metrics collection middleware
+// Requirements: 8.1, 8.5
+app.use(metricsMiddleware);
+
+// Health check endpoint with detailed metrics
+// Requirements: 8.1, 8.5
 app.get('/api/health', async (_req, res) => {
-  const dbHealthy = await checkDatabaseHealth();
-  res.json({ 
-    status: dbHealthy ? 'ok' : 'degraded',
-    database: dbHealthy ? 'connected' : 'disconnected',
-    timestamp: new Date().toISOString() 
-  });
+  try {
+    const { getDetailedHealthStatus } = await import('./utils/database.js');
+    const healthStatus = await getDetailedHealthStatus();
+    
+    // Return appropriate status code based on health
+    const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(healthStatus);
+  } catch (error) {
+    res.status(503).json({
+      status: 'unhealthy',
+      database: {
+        connected: false,
+        responseTime: 0,
+      },
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
+// Metrics endpoint for monitoring dashboard
+// Requirements: 8.1, 8.5
+app.get('/api/metrics', async (_req, res) => {
+  try {
+    const { metricsCollector } = await import('./utils/metrics.js');
+    const { getDetailedHealthStatus } = await import('./utils/database.js');
+    
+    const healthStatus = await getDetailedHealthStatus();
+    const metricsSummary = metricsCollector.getSummary();
+
+    res.json({
+      status: 'ok',
+      health: healthStatus,
+      metrics: {
+        requests: metricsSummary.requests,
+        database: metricsSummary.database,
+        errorRate: metricsSummary.errorRate,
+        uptime: metricsSummary.uptime,
+        memory: {
+          heapUsed: Math.round(metricsSummary.memory.heapUsed / 1024 / 1024), // MB
+          heapTotal: Math.round(metricsSummary.memory.heapTotal / 1024 / 1024), // MB
+          external: Math.round(metricsSummary.memory.external / 1024 / 1024), // MB
+        },
+      },
+      timestamp: metricsSummary.timestamp,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Failed to collect metrics',
+      timestamp: new Date().toISOString(),
+    });
+  }
 });
 
 // Swagger UI documentation
