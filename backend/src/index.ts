@@ -231,21 +231,77 @@ async function startServer() {
       console.log(`✓ Server running on port ${PORT}`);
     });
 
-    // Graceful shutdown
-    process.on('SIGTERM', async () => {
-      console.log('SIGTERM received, shutting down gracefully...');
-      server.close(async () => {
-        await disconnectDatabase();
-        process.exit(0);
+    // Track active connections for graceful shutdown
+    let activeConnections = 0;
+    const maxShutdownWaitTime = 30000; // 30 seconds
+
+    // Track connection count
+    server.on('connection', (conn) => {
+      activeConnections++;
+      conn.on('close', () => {
+        activeConnections--;
       });
     });
 
-    process.on('SIGINT', async () => {
-      console.log('SIGINT received, shutting down gracefully...');
+    /**
+     * Graceful shutdown handler
+     * Requirements: 8.2
+     */
+    const gracefulShutdown = async (signal: string) => {
+      console.log(`\n${signal} received, initiating graceful shutdown...`);
+      
+      // Stop accepting new connections
       server.close(async () => {
-        await disconnectDatabase();
-        process.exit(0);
+        console.log('✓ Server stopped accepting new connections');
+        
+        try {
+          // Wait for in-flight requests to complete (with timeout)
+          const shutdownStartTime = Date.now();
+          while (activeConnections > 0 && Date.now() - shutdownStartTime < maxShutdownWaitTime) {
+            console.log(`  Waiting for ${activeConnections} active connection(s) to close...`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+
+          if (activeConnections > 0) {
+            console.warn(`⚠ Timeout reached with ${activeConnections} active connection(s) still open`);
+          } else {
+            console.log('✓ All active connections closed');
+          }
+
+          // Close database connections
+          console.log('Closing database connections...');
+          await disconnectDatabase();
+          console.log('✓ Database connections closed');
+
+          console.log('✓ Graceful shutdown completed successfully');
+          process.exit(0);
+        } catch (error) {
+          console.error('✗ Error during graceful shutdown:', error instanceof Error ? error.message : String(error));
+          process.exit(1);
+        }
       });
+
+      // Force shutdown after timeout
+      setTimeout(() => {
+        console.error(`✗ Graceful shutdown timeout (${maxShutdownWaitTime}ms) exceeded, forcing exit`);
+        process.exit(1);
+      }, maxShutdownWaitTime + 5000);
+    };
+
+    // Handle termination signals
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (error) => {
+      console.error('✗ Uncaught exception:', error);
+      gracefulShutdown('uncaughtException');
+    });
+
+    // Handle unhandled promise rejections
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('✗ Unhandled rejection at:', promise, 'reason:', reason);
+      gracefulShutdown('unhandledRejection');
     });
   } catch (error) {
     console.error('Failed to start server:', error);

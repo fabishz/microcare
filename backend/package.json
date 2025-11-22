@@ -15,7 +15,8 @@
     "db:seed": "ts-node scripts/seed-db.ts",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "verify-startup": "ts-node scripts/verify-startup.ts"
   },
   "keywords": [
     "mental-health",
