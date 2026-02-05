@@ -1,33 +1,47 @@
-# Contributing to MicroCare Backend
+# Contributing to MicroCare Project
 
 First off, thanks for taking the time to contribute! 🎉
 
-The following is a set of guidelines for contributing to MicroCare Backend. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+The following is a set of guidelines for contributing to the MicroCare project. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by the [MicroCare Backend Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [support@microcare.app](mailto:support@microcare.app).
+This project and everyone participating in it is governed by the [MicroCare Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [support@microcare.app](mailto:support@microcare.app).
 
-## getting Started
+## Getting Started
 
-1.  **Fork the repository** on GitHub.
-2.  **Clone your fork** locally:
+### Using Docker (Recommended)
+
+The easiest way to get started is using Docker Compose:
+
+```bash
+docker-compose up --build
+```
+This starts both the frontend (http://localhost:5173) and backend (http://localhost:3000).
+
+### Manual Setup
+
+If you prefer running services individually:
+
+1.  **Fork and Clone**:
     ```bash
-    git clone https://github.com/your-username/microcare-backend.git
-    cd microcare-backend
+    git clone https://github.com/your-username/microcare.git
+    cd microcare
     ```
-3.  **Install dependencies**:
+
+2.  **Frontend Setup**:
     ```bash
+    cd frontend
     npm install
+    npm run dev
     ```
-4.  **Set up environment**:
-    ```bash
-    npm run setup
-    ```
-    This will copy `.env.example` to `.env`. You **must** then edit `.env` with your local PostgreSQL credentials.
 
-5.  **Start development server**:
+3.  **Backend Setup**:
     ```bash
+    cd backend
+    npm install
+    npm run setup
+    npm run db:migrate
     npm run dev
     ```
 
