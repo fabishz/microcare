@@ -21,6 +21,7 @@ import PrivacyTerms from "./pages/PrivacyTerms";
 import FAQ from "./pages/FAQ";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
+import { OnboardingManager } from "./components/OnboardingManager";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <OnboardingManager />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Landing />} />
@@ -41,7 +43,7 @@ const App = () => (
               <Route path="/privacy-terms" element={<PrivacyTerms />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/sitemap" element={<Sitemap />} />
-              
+
               <Route
                 path="/dashboard"
                 element={

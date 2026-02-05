@@ -1,9 +1,17 @@
 // User types
+export enum UserRole {
+  USER = 'USER',
+  MEDICAL_PROFESSIONAL = 'MEDICAL_PROFESSIONAL',
+  ADMIN = 'ADMIN',
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
   passwordHash: string;
+  role: UserRole;
+  hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -12,6 +20,8 @@ export interface UserProfile {
   id: string;
   email: string;
   name: string;
+  role: UserRole;
+  hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

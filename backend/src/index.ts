@@ -14,6 +14,8 @@ import { validateEnv, getEnvConfig } from './utils/env.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import medicalRoutes from './routes/medicalRoutes.js';
 
 dotenv.config();
 
@@ -95,7 +97,7 @@ app.use(cors({
 app.use((_req, res, next) => {
   // Wrap the cookie method to apply secure defaults
   const originalCookie = res.cookie.bind(res);
-  res.cookie = function(name: string, val: string, options: any = {}) {
+  res.cookie = function (name: string, val: string, options: any = {}) {
     const cookieOptions = {
       ...options,
       httpOnly: true, // Prevent XSS attacks
@@ -131,7 +133,7 @@ app.get('/api/health', async (_req, res) => {
   try {
     const { getDetailedHealthStatus } = await import('./utils/database.js');
     const healthStatus = await getDetailedHealthStatus();
-    
+
     // Return appropriate status code based on health
     const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
     res.status(statusCode).json(healthStatus);
@@ -155,7 +157,7 @@ app.get('/api/metrics', async (_req, res) => {
   try {
     const { metricsCollector } = await import('./utils/metrics.js');
     const { getDetailedHealthStatus } = await import('./utils/database.js');
-    
+
     const healthStatus = await getDetailedHealthStatus();
     const metricsSummary = metricsCollector.getSummary();
 
@@ -203,6 +205,12 @@ app.use('/api/users', userRoutes);
 // Journal entry routes
 app.use('/api/entries', entryRoutes);
 
+// Admin routes (protected by role middleware)
+app.use('/api/admin', adminRoutes);
+
+// Medical professional routes (protected by role middleware)
+app.use('/api/medical', medicalRoutes);
+
 // 404 Not Found middleware (place before error handler)
 app.use(notFoundHandler);
 
@@ -249,11 +257,11 @@ async function startServer() {
      */
     const gracefulShutdown = async (signal: string) => {
       console.log(`\n${signal} received, initiating graceful shutdown...`);
-      
+
       // Stop accepting new connections
       server.close(async () => {
         console.log('✓ Server stopped accepting new connections');
-        
+
         try {
           // Wait for in-flight requests to complete (with timeout)
           const shutdownStartTime = Date.now();

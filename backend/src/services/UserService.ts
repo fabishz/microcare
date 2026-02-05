@@ -38,6 +38,8 @@ export class UserService {
       id: user.id,
       email: user.email,
       name: user.name,
+      role: user.role,
+      hasCompletedOnboarding: user.hasCompletedOnboarding,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -109,6 +111,8 @@ export class UserService {
       id: updatedUser.id,
       email: updatedUser.email,
       name: updatedUser.name,
+      role: updatedUser.role,
+      hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
     };
@@ -173,6 +177,40 @@ export class UserService {
       id: updatedUser.id,
       email: updatedUser.email,
       name: updatedUser.name,
+      role: updatedUser.role,
+      hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+    };
+
+    return userProfile;
+  }
+
+  /**
+   * Mark onboarding as completed for a user
+   * @param userId - The user's ID
+   * @returns Updated UserProfile
+   * @throws Error if user not found
+   */
+  async completeOnboarding(userId: string): Promise<UserProfile> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    const user = await UserRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    // Update onboarding status
+    const updatedUser = await UserRepository.update(userId, { hasCompletedOnboarding: true });
+
+    const userProfile: UserProfile = {
+      id: updatedUser.id,
+      email: updatedUser.email,
+      name: updatedUser.name,
+      role: updatedUser.role,
+      hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
     };

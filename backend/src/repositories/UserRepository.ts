@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { User } from '../types/index.js';
+import { User, UserRole } from '../types/index.js';
 
 /**
  * UserRepository
@@ -78,6 +78,8 @@ export class UserRepository {
       name?: string;
       email?: string;
       passwordHash?: string;
+      hasCompletedOnboarding?: boolean;
+      role?: UserRole;
     }
   ): Promise<User> {
     try {
@@ -91,6 +93,91 @@ export class UserRepository {
         throw new Error('Email already exists');
       }
       throw new Error(`Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Find all users with pagination and search
+   */
+  async findAll(options: { page: number; limit: number; search?: string }): Promise<any> {
+    try {
+      const skip = (options.page - 1) * options.limit;
+      const where = options.search
+        ? {
+          OR: [
+            { name: { contains: options.search, mode: 'insensitive' as const } },
+            { email: { contains: options.search, mode: 'insensitive' as const } },
+          ],
+        }
+        : {};
+
+      const [users, total] = await Promise.all([
+        prisma.user.findMany({
+          where,
+          skip,
+          take: options.limit,
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            hasCompletedOnboarding: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        }),
+        prisma.user.count({ where }),
+      ]);
+
+      return {
+        data: users,
+        total,
+        page: options.page,
+        limit: options.limit,
+        totalPages: Math.ceil(total / options.limit),
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch users: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Get system statistics
+   */
+  async getSystemStats(): Promise<any> {
+    try {
+      const [totalUsers, totalEntries, usersByRole] = await Promise.all([
+        prisma.user.count(),
+        prisma.journalEntry.count(),
+        prisma.user.groupBy({
+          by: ['role'],
+          _count: true,
+        }),
+      ]);
+
+      return {
+        totalUsers,
+        totalEntries,
+        usersByRole: usersByRole.reduce((acc: any, item: any) => {
+          acc[item.role] = item._count;
+          return acc;
+        }, {}),
+      };
+    } catch (error) {
+      throw new Error(`Failed to fetch stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Delete a user
+   */
+  async delete(id: string): Promise<void> {
+    try {
+      await prisma.user.delete({
+        where: { id },
+      });
+    } catch (error) {
+      throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

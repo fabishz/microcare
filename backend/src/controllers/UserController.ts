@@ -210,6 +210,44 @@ export class UserController {
       throw new ApiError(500, 'Failed to change password', 'PASSWORD_CHANGE_FAILED');
     }
   }
+
+  /**
+   * Complete user onboarding
+   * POST /api/users/complete-onboarding
+   */
+  async completeOnboarding(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      // Verify user is authenticated
+      if (!req.user) {
+        throw new AuthenticationError('Not authenticated');
+      }
+
+      // Mark onboarding as complete
+      const updatedProfile = await UserService.completeOnboarding(req.user.userId);
+
+      res.status(200).json({
+        success: true,
+        data: updatedProfile,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('Not authenticated')) {
+          throw new AuthenticationError(error.message);
+        }
+
+        if (error.message.includes('User not found')) {
+          throw new NotFoundError(error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to complete onboarding', 'ONBOARDING_COMPLETION_FAILED');
+    }
+  }
 }
 
 export default new UserController();

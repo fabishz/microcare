@@ -354,4 +354,41 @@ router.post(
   asyncHandler(UserController.changePassword.bind(UserController))
 );
 
+/**
+ * @swagger
+ * /api/users/complete-onboarding:
+ *   post:
+ *     summary: Complete user onboarding
+ *     description: Mark the authenticated user's onboarding as complete
+ *     tags:
+ *       - User Profile
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Onboarding completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Internal server error
+ */
+router.post(
+  '/complete-onboarding',
+  authMiddleware,
+  asyncHandler(UserController.completeOnboarding.bind(UserController))
+);
+
 export default router;
