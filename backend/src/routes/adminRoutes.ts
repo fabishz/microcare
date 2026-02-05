@@ -42,7 +42,7 @@ router.get(
     '/users',
     authMiddleware,
     requireAdmin,
-    asyncHandler(AdminController.getUsers.bind(AdminController))
+    AdminController.getUsers.bind(AdminController)
 );
 
 /**
@@ -67,7 +67,7 @@ router.get(
     '/stats',
     authMiddleware,
     requireAdmin,
-    asyncHandler(AdminController.getStats.bind(AdminController))
+    AdminController.getStats.bind(AdminController)
 );
 
 /**
@@ -108,7 +108,7 @@ router.put(
     '/users/:id/role',
     authMiddleware,
     requireAdmin,
-    asyncHandler(AdminController.updateUserRole.bind(AdminController))
+    AdminController.updateUserRole.bind(AdminController)
 );
 
 /**
@@ -139,7 +139,7 @@ router.delete(
     '/users/:id',
     authMiddleware,
     requireAdmin,
-    asyncHandler(AdminController.deleteUser.bind(AdminController))
+    AdminController.deleteUser.bind(AdminController)
 );
 
 export default router;

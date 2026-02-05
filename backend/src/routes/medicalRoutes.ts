@@ -27,7 +27,7 @@ router.get(
     '/analytics',
     authMiddleware,
     requireMedicalOrAdmin,
-    asyncHandler(MedicalController.getAnalytics.bind(MedicalController))
+    MedicalController.getAnalytics.bind(MedicalController)
 );
 
 /**
@@ -52,7 +52,7 @@ router.get(
     '/overview',
     authMiddleware,
     requireMedicalOrAdmin,
-    asyncHandler(MedicalController.getOverview.bind(MedicalController))
+    MedicalController.getOverview.bind(MedicalController)
 );
 
 export default router;
