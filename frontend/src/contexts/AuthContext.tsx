@@ -1,10 +1,17 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { apiClient, ApiError } from '../lib/apiClient';
 
+export enum UserRole {
+  USER = 'USER',
+  MEDICAL_PROFESSIONAL = 'MEDICAL_PROFESSIONAL',
+  ADMIN = 'ADMIN',
+}
+
 interface User {
   id: string;
   name: string;
   email: string;
+  role: UserRole;
   hasCompletedOnboarding: boolean;
 }
 

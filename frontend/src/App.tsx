@@ -3,14 +3,17 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, UserRole } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { RoleRoute } from "@/components/RoleRoute";
 
 import Landing from "./pages/Landing";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import UserDashboard from "./pages/UserDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import MedicalDashboard from "./pages/medical/MedicalDashboard";
 import NewEntry from "./pages/NewEntry";
 import Entries from "./pages/Entries";
 import EntryDetail from "./pages/EntryDetail";
@@ -44,16 +47,45 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/sitemap" element={<Sitemap />} />
 
+              {/* User Dashboard (default for regular users) */}
               <Route
                 path="/dashboard"
                 element={
                   <ProtectedRoute>
-                    <Dashboard />
+                    <RoleRoute allowedRoles={[UserRole.USER]}>
+                      <UserDashboard />
+                    </RoleRoute>
                   </ProtectedRoute>
                 }
               />
+
+              {/* Admin Dashboard */}
               <Route
-                path="/dashboard/new-entry"
+                path="/dashboard/admin"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={[UserRole.ADMIN]}>
+                      <AdminDashboard />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Medical Professional Dashboard */}
+              <Route
+                path="/dashboard/medical"
+                element={
+                  <ProtectedRoute>
+                    <RoleRoute allowedRoles={[UserRole.MEDICAL_PROFESSIONAL, UserRole.ADMIN]}>
+                      <MedicalDashboard />
+                    </RoleRoute>
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Journal Entry Routes */}
+              <Route
+                path="/entries/new"
                 element={
                   <ProtectedRoute>
                     <NewEntry />
@@ -61,7 +93,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/entries"
+                path="/entries"
                 element={
                   <ProtectedRoute>
                     <Entries />
@@ -69,15 +101,17 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/entry/:id"
+                path="/entries/:id"
                 element={
                   <ProtectedRoute>
                     <EntryDetail />
                   </ProtectedRoute>
                 }
               />
+
+              {/* Profile Route */}
               <Route
-                path="/dashboard/profile"
+                path="/profile"
                 element={
                   <ProtectedRoute>
                     <Profile />
@@ -85,7 +119,11 @@ const App = () => (
                 }
               />
 
-              {/* Catch-all route */}
+              {/* Legacy routes - redirect to new structure */}
+              <Route path="/dashboard/new-entry" element={<Navigate to="/entries/new" replace />} />
+              <Route path="/dashboard/entries" element={<Navigate to="/entries" replace />} />
+
+              {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
