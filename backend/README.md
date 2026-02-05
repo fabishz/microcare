@@ -68,7 +68,8 @@ src/
 
 -   [Contributing Guidelines](CONTRIBUTING.md)
 -   [Code of Conduct](CODE_OF_CONDUCT.md)
--   [API Documentation](src/config/swagger.ts) (Available at `/api/docs` when server is running)
+-   [API Documentation (Guide)](API.md)
+-   [Interactive API Docs (Swagger)](src/config/swagger.ts) (Available at `/api/docs` when server is running)
 -   [Database Setup](DATABASE_SETUP.md)
 
 
