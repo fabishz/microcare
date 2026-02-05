@@ -1,6 +1,11 @@
 # MicroCare Backend
 
-A professional, scalable backend API for the MicroCare mental health and wellness journaling application.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18-green.svg)
+![TypeScript](https://img.shields.io/badge/typescript-%5E5.0-blue)
+
+A professional, scalable backend API for the **MicroCare** mental health and wellness journaling application. Built with Node.js, Express, and TypeScript, following industry best practices for security and maintainability.
+
 
 ## Tech Stack
 
@@ -24,47 +29,48 @@ src/
 └── index.ts        # Application entry point
 ```
 
-## Setup Instructions
+## Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ and npm/yarn
-- PostgreSQL 12+
+-   Node.js 18+ (tested with v20+)
+-   PostgreSQL 12+
 
-### Installation
+### Installation & Setup
 
-1. Install dependencies:
-```bash
-npm install
-```
+1.  **Clone and Install**:
+    ```bash
+    git clone https://github.com/your-username/microcare-backend.git
+    cd microcare-backend
+    npm install
+    ```
 
-2. Configure environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
+2.  **Environment Setup**:
+    Run the setup script to create your `.env` file:
+    ```bash
+    npm run setup
+    ```
+    > **Important**: Open `.env` and update `DATABASE_URL` with your local PostgreSQL credentials.
 
-3. Build TypeScript:
-```bash
-npm run build
-```
+3.  **Database Migration**:
+    Initialize your database schema:
+    ```bash
+    npm run db:migrate
+    ```
 
-### Development
+4.  **Start the Server**:
+    ```bash
+    npm run dev
+    ```
+    The server will start at `http://localhost:3000`.
 
-Start the development server:
-```bash
-npm run dev
-```
+## Documentation
 
-The server will run on `http://localhost:3000` by default.
+-   [Contributing Guidelines](CONTRIBUTING.md)
+-   [Code of Conduct](CODE_OF_CONDUCT.md)
+-   [API Documentation](src/config/swagger.ts) (Available at `/api/docs` when server is running)
+-   [Database Setup](DATABASE_SETUP.md)
 
-### Production
-
-Build and start:
-```bash
-npm run build
-npm start
-```
 
 ## API Endpoints
 

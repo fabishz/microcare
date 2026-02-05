@@ -17,7 +17,7 @@ services:
     networks:
       - microcare-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d microcare"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d microcare" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,6 +29,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: development
     container_name: microcare-backend
     environment:
       NODE_ENV: development
@@ -51,7 +52,7 @@ services:
     networks:
       - microcare-network
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3000/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -62,8 +63,9 @@ services:
   # Frontend Service (Vite Dev Server)
   frontend:
     build:
-      context: .
+      context: ./frontend
       dockerfile: Dockerfile
+      target: development
     container_name: microcare-frontend
     environment:
       VITE_API_URL: http://localhost:3000
@@ -73,19 +75,19 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./src:/app/src
-      - ./index.html:/app/index.html
-      - ./vite.config.ts:/app/vite.config.ts
-      - ./tsconfig.json:/app/tsconfig.json
-      - ./tsconfig.app.json:/app/tsconfig.app.json
-      - ./tsconfig.node.json:/app/tsconfig.node.json
-      - ./postcss.config.js:/app/postcss.config.js
-      - ./tailwind.config.ts:/app/tailwind.config.ts
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tsconfig.app.json:/app/tsconfig.app.json
+      - ./frontend/tsconfig.node.json:/app/tsconfig.node.json
+      - ./frontend/postcss.config.js:/app/postcss.config.js
+      - ./frontend/tailwind.config.ts:/app/tailwind.config.ts
       - /app/node_modules
     networks:
       - microcare-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/" ]
       interval: 30s
       timeout: 10s
       retries: 3

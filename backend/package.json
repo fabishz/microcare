@@ -5,18 +5,19 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "ts-node src/index.ts",
+    "dev": "tsx src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
     "test": "jest",
     "test:watch": "jest --watch",
-    "db:init": "ts-node scripts/init-db.ts",
-    "db:seed": "ts-node scripts/seed-db.ts",
+    "db:init": "tsx scripts/init-db.ts",
+    "db:seed": "tsx scripts/seed-db.ts",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "verify-startup": "ts-node scripts/verify-startup.ts"
+    "verify-startup": "tsx scripts/verify-startup.ts",
+    "setup": "cp -n .env.example .env || true && npm install"
   },
   "keywords": [
     "mental-health",
@@ -59,6 +60,7 @@
     "supertest": "^6.3.3",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.2",
+    "tsx": "^4.21.0",
     "typescript": "^5.3.3"
   }
 }

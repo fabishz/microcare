@@ -1,54 +1,36 @@
-# Welcome to the MicroCare project
+# MicroCare Project
 
-## Project info
+Welcome to the MicroCare project, an AI-powered journaling app focused on mental wellness.
 
-This repository contains the MicroCare frontend — an AI-powered journaling app focused on mental wellness.
+## Project Structure
 
-## How can I edit this code?
+This project is organized as a monorepo with distinct frontend and backend directories:
 
-You can edit the project locally or in your preferred development environment.
+-   **[Frontend](frontend/README.md)**: React application built with Vite, Tailwind CSS, and shadcn-ui.
+-   **[Backend](backend/README.md)**: Node.js/Express API with TypeScript and PostgreSQL.
 
-### Local development
+## Quick Start
 
-Requirements: Node.js and npm (or pnpm/yarn).
-
-Quick start:
-
-```sh
-# Clone the repository
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
-
-# Install dependencies
+### Frontend
+```bash
+cd frontend
 npm install
-
-# Start the dev server
 npm run dev
 ```
 
-### Editing on GitHub or Codespaces
-
-You can also edit files directly on GitHub or open this repo in GitHub Codespaces.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Build the app and deploy the generated `dist/` directory to your preferred static host (Netlify, Vercel, GitHub Pages, etc.).
-
-```sh
-npm run build
-# then follow your host's deployment instructions
+### Backend
+```bash
+cd backend
+npm install
+npm run setup  # Sets up env and installs dependencies
+npm run db:migrate
+npm run dev
 ```
 
-## Custom domain
+## Docker Support
 
-To use a custom domain, configure DNS and your hosting provider according to their docs.
+You can run the entire stack using Docker Compose:
+
+```bash
+docker-compose up --build
+```
