@@ -35,11 +35,12 @@ export const authLimiter = rateLimit({
 
 /**
  * Stricter rate limiter for login endpoint
- * Limits: 3 requests per 15 minutes per IP address
+ * Production: 3 requests per 15 minutes per IP address
+ * Development: 50 requests per 15 minutes per IP address
  */
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 3, // 3 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 3 : 50, // Lenient in development
   message: 'Too many login attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
@@ -57,11 +58,12 @@ export const loginLimiter = rateLimit({
 
 /**
  * Rate limiter for registration endpoint
- * Limits: 3 requests per hour per IP address
+ * Production: 3 requests per hour per IP address
+ * Development: 20 requests per hour per IP address
  */
 export const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 3 : 20, // Lenient in development
   message: 'Too many registration attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
