@@ -10,6 +10,7 @@ import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import SEO from '@/components/common/SEO';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -75,6 +76,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Create Account" />
       <Navbar />
 
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">

@@ -9,6 +9,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import SEO from '@/components/common/SEO';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -42,8 +43,9 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Sign In" />
       <Navbar />
-      
+
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md p-8 shadow-lg">
           <div className="mb-6 text-center">

@@ -5,6 +5,7 @@ import { apiClient } from '@/lib/apiClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, TrendingUp, Calendar, PlusCircle } from 'lucide-react';
+import SEO from '@/components/common/SEO';
 
 interface DashboardStats {
     totalEntries: number;
@@ -134,6 +135,7 @@ export default function UserDashboard() {
 
     return (
         <div className="container mx-auto p-6 max-w-7xl">
+            <SEO title="Dashboard" />
             <div className="mb-8">
                 <h1 className="text-3xl font-bold">Welcome back, {user?.name}!</h1>
                 <p className="text-muted-foreground mt-2">Here's your mental health journey overview</p>

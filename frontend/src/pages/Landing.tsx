@@ -4,10 +4,12 @@ import { Card } from '@/components/ui/card';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { Sparkles, Heart, Brain, TrendingUp, Shield, Smile } from 'lucide-react';
+import SEO from '@/components/common/SEO';
 
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO title="Welcome" />
       <Navbar />
 
       {/* Hero Section */}
@@ -17,14 +19,14 @@ export default function Landing() {
             <Sparkles className="h-4 w-4" />
             Your AI-Powered Wellness Companion
           </div>
-          
+
           <h1 className="mb-6 text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
             Find Peace Through{' '}
             <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
               Reflection
             </span>
           </h1>
-          
+
           <p className="mb-10 text-xl text-muted-foreground sm:text-2xl">
             MicroCare helps you understand your emotions, track your mental wellness,
             and grow through guided journaling with AI-powered insights.

@@ -16,6 +16,7 @@ import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import medicalRoutes from './routes/medicalRoutes.js';
+import logger from './utils/logger.js';
 
 dotenv.config();
 
@@ -23,8 +24,9 @@ dotenv.config();
 try {
   validateEnv();
 } catch (error) {
-  console.error('Environment validation failed:');
-  console.error(error instanceof Error ? error.message : String(error));
+  logger.error('Environment validation failed:', {
+    error: error instanceof Error ? error.message : String(error)
+  });
   process.exit(1);
 }
 
@@ -226,17 +228,19 @@ async function startServer() {
     // Run pending database migrations
     // Requirements: 6.1, 6.4
     try {
-      console.log('Running database migrations...');
+      logger.info('Running database migrations...');
       await runPendingMigrations();
     } catch (migrationError) {
-      console.error('✗ Failed to run database migrations:', migrationError instanceof Error ? migrationError.message : String(migrationError));
-      console.error('Server startup aborted due to migration failure');
+      logger.error('Failed to run database migrations:', {
+        error: migrationError instanceof Error ? migrationError.message : String(migrationError)
+      });
+      logger.error('Server startup aborted due to migration failure');
       await disconnectDatabase();
       process.exit(1);
     }
 
     const server = app.listen(PORT, () => {
-      console.log(`✓ Server running on port ${PORT}`);
+      logger.info(`Server running on port ${PORT}`);
     });
 
     // Track active connections for graceful shutdown
@@ -256,42 +260,44 @@ async function startServer() {
      * Requirements: 8.2
      */
     const gracefulShutdown = async (signal: string) => {
-      console.log(`\n${signal} received, initiating graceful shutdown...`);
+      logger.info(`${signal} received, initiating graceful shutdown...`);
 
       // Stop accepting new connections
       server.close(async () => {
-        console.log('✓ Server stopped accepting new connections');
+        logger.info('Server stopped accepting new connections');
 
         try {
           // Wait for in-flight requests to complete (with timeout)
           const shutdownStartTime = Date.now();
           while (activeConnections > 0 && Date.now() - shutdownStartTime < maxShutdownWaitTime) {
-            console.log(`  Waiting for ${activeConnections} active connection(s) to close...`);
+            logger.info(`Waiting for ${activeConnections} active connection(s) to close...`);
             await new Promise(resolve => setTimeout(resolve, 1000));
           }
 
           if (activeConnections > 0) {
-            console.warn(`⚠ Timeout reached with ${activeConnections} active connection(s) still open`);
+            logger.warn(`Timeout reached with ${activeConnections} active connection(s) still open`);
           } else {
-            console.log('✓ All active connections closed');
+            logger.info('All active connections closed');
           }
 
           // Close database connections
-          console.log('Closing database connections...');
+          logger.info('Closing database connections...');
           await disconnectDatabase();
-          console.log('✓ Database connections closed');
+          logger.info('Database connections closed');
 
-          console.log('✓ Graceful shutdown completed successfully');
+          logger.info('Graceful shutdown completed successfully');
           process.exit(0);
         } catch (error) {
-          console.error('✗ Error during graceful shutdown:', error instanceof Error ? error.message : String(error));
+          logger.error('Error during graceful shutdown:', {
+            error: error instanceof Error ? error.message : String(error)
+          });
           process.exit(1);
         }
       });
 
       // Force shutdown after timeout
       setTimeout(() => {
-        console.error(`✗ Graceful shutdown timeout (${maxShutdownWaitTime}ms) exceeded, forcing exit`);
+        logger.error(`Graceful shutdown timeout (${maxShutdownWaitTime}ms) exceeded, forcing exit`);
         process.exit(1);
       }, maxShutdownWaitTime + 5000);
     };
@@ -302,17 +308,19 @@ async function startServer() {
 
     // Handle uncaught exceptions
     process.on('uncaughtException', (error) => {
-      console.error('✗ Uncaught exception:', error);
+      logger.error('Uncaught exception:', { error: error.message, stack: error.stack });
       gracefulShutdown('uncaughtException');
     });
 
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (reason, promise) => {
-      console.error('✗ Unhandled rejection at:', promise, 'reason:', reason);
+      logger.error('Unhandled rejection at:', { promise, reason });
       gracefulShutdown('unhandledRejection');
     });
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', {
+      error: error instanceof Error ? error.message : String(error)
+    });
     process.exit(1);
   }
 }

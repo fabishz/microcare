@@ -1,5 +1,4 @@
 import { execSync } from 'child_process';
-import path from 'path';
 
 // Get the project root directory
 // Using process.cwd() which works in both production and test environments

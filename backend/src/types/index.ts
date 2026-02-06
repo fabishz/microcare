@@ -12,6 +12,8 @@ export interface User {
   passwordHash: string;
   role: UserRole;
   hasCompletedOnboarding: boolean;
+  failedLoginAttempts: number;
+  lockoutUntil: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }

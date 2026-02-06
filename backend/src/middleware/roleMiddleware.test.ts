@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { requireRole, requireAdmin, requireMedicalOrAdmin } from '../middleware/roleMiddleware';
 import { UserRole } from '../types/index';
 import { AuthorizationError } from '../utils/errors';

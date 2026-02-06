@@ -8,7 +8,7 @@ import { UserRole } from '../types/index.js';
  * Checks if the authenticated user has one of the required roles
  */
 export function requireRole(...allowedRoles: UserRole[]) {
-    return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    return async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
         try {
             if (!req.user) {
                 throw new AuthorizationError('Authentication required');

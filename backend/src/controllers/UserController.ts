@@ -8,6 +8,7 @@ import {
   NotFoundError,
 } from '../utils/errors.js';
 import UserService from '../services/UserService.js';
+import { logAuditEvent, AuditEventType } from '../utils/audit.js';
 
 /**
  * UserController
@@ -119,6 +120,14 @@ export class UserController {
         { name, email }
       );
 
+      // Audit log profile update
+      logAuditEvent(AuditEventType.SENSITIVE_DATA_ACCESS, {
+        userId: req.user.userId,
+        success: true,
+        action: 'PROFILE_UPDATE',
+        metadata: { updatedFields: Object.keys({ name, email }).filter(k => (req.body as any)[k] !== undefined) },
+      });
+
       res.status(200).json({
         success: true,
         data: updatedProfile,
@@ -182,6 +191,12 @@ export class UserController {
         req.user.userId,
         { currentPassword, newPassword }
       );
+
+      // Audit log password change
+      logAuditEvent(AuditEventType.PASSWORD_CHANGE_SUCCESS, {
+        userId: req.user.userId,
+        success: true,
+      });
 
       res.status(200).json({
         success: true,

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import logger from '../utils/logger.js';
 
 /**
  * Request logging middleware
@@ -16,13 +17,24 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     const duration = Date.now() - startTime;
     const statusCode = res.statusCode;
 
-    // Log request details
-    const logLevel = statusCode >= 400 ? 'error' : 'info';
-    const queryString = Object.keys(query).length > 0 ? `?${new URLSearchParams(query as Record<string, string>).toString()}` : '';
-    
-    console.log(
-      `[${new Date().toISOString()}] ${logLevel.toUpperCase()} ${method} ${path}${queryString} - ${statusCode} (${duration}ms)`
-    );
+    // Determine log level
+    const logData = {
+      method,
+      path,
+      query,
+      statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('user-agent'),
+    };
+
+    if (statusCode >= 500) {
+      logger.error(`Request failed: ${method} ${path}`, logData);
+    } else if (statusCode >= 400) {
+      logger.warn(`Request warning: ${method} ${path}`, logData);
+    } else {
+      logger.info(`${method} ${path} - ${statusCode}`, logData);
+    }
 
     // Call the original end method
     return originalEnd(...args);

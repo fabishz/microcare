@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/errors.js';
+import logger from '../utils/logger.js';
 
 /**
  * Error response interface
@@ -12,41 +13,6 @@ interface ErrorResponse {
     details?: Record<string, unknown>;
   };
   timestamp: string;
-}
-
-/**
- * Error logger utility
- * Logs errors with appropriate severity levels
- */
-function logError(err: Error | ApiError, req: Request): void {
-  const timestamp = new Date().toISOString();
-  const method = req.method;
-  const path = req.path;
-  const ip = req.ip || 'unknown';
-
-  if (err instanceof ApiError) {
-    // Log API errors based on status code
-    if (err.statusCode >= 500) {
-      console.error(
-        `[${timestamp}] ERROR ${method} ${path} - ${err.statusCode} ${err.code}: ${err.message} (IP: ${ip})`
-      );
-    } else if (err.statusCode >= 400) {
-      console.warn(
-        `[${timestamp}] WARN ${method} ${path} - ${err.statusCode} ${err.code}: ${err.message} (IP: ${ip})`
-      );
-    }
-
-    // Log details if present (for debugging)
-    if (err.details && Object.keys(err.details).length > 0) {
-      console.debug(`[${timestamp}] DEBUG Error details:`, err.details);
-    }
-  } else {
-    // Log unhandled errors
-    console.error(
-      `[${timestamp}] ERROR ${method} ${path} - Unhandled error: ${err.message} (IP: ${ip})`
-    );
-    console.error(`[${timestamp}] ERROR Stack trace:`, err.stack);
-  }
 }
 
 /**
@@ -66,12 +32,24 @@ export function errorHandler(
   _next: NextFunction
 ): void {
   const timestamp = new Date().toISOString();
+  const { method, path, ip } = req;
 
-  // Log the error
-  logError(err, req);
-
-  // Handle ApiError instances
+  // Log the error using winston
   if (err instanceof ApiError) {
+    const logData = {
+      method,
+      path,
+      ip,
+      code: err.code,
+      details: err.details,
+    };
+
+    if (err.statusCode >= 500) {
+      logger.error(`API Error: ${err.message}`, { ...logData, stack: err.stack });
+    } else {
+      logger.warn(`API Warning: ${err.message}`, logData);
+    }
+
     const errorResponse: ErrorResponse = {
       success: false,
       error: {
@@ -83,20 +61,26 @@ export function errorHandler(
     };
 
     res.status(err.statusCode).json(errorResponse);
-    return;
+  } else {
+    // Log unhandled errors as errors
+    logger.error(`Unhandled Error: ${err.message}`, {
+      method,
+      path,
+      ip,
+      stack: err.stack,
+    });
+
+    const errorResponse: ErrorResponse = {
+      success: false,
+      error: {
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Internal server error',
+      },
+      timestamp,
+    };
+
+    res.status(500).json(errorResponse);
   }
-
-  // Handle generic errors - return generic message without exposing internal details
-  const errorResponse: ErrorResponse = {
-    success: false,
-    error: {
-      code: 'INTERNAL_SERVER_ERROR',
-      message: 'Internal server error',
-    },
-    timestamp,
-  };
-
-  res.status(500).json(errorResponse);
 }
 
 /**

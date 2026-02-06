@@ -29,7 +29,6 @@ const prisma = new PrismaClient();
 describe('E2E Tests - Error Scenarios', () => {
   let dbConnected = false;
   let accessToken: string;
-  let userId: string;
   let entryId: string;
 
   const testUser = {
@@ -57,7 +56,6 @@ describe('E2E Tests - Error Scenarios', () => {
         .send(testUser);
 
       accessToken = registerResponse.body.data.accessToken;
-      userId = registerResponse.body.data.user.id;
 
       // Create a test entry
       const entryResponse = await request(app)

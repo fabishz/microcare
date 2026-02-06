@@ -3,11 +3,9 @@ import { AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import {
     ApiError,
     ValidationError,
-    AuthorizationError,
-    NotFoundError,
 } from '../utils/errors.js';
 import UserRepository from '../repositories/UserRepository.js';
-import { UserRole, UserProfile, PaginatedResponse } from '../types/index.js';
+import { UserRole } from '../types/index.js';
 
 /**
  * AdminController
@@ -41,7 +39,7 @@ export class AdminController {
      * Get system statistics
      * GET /api/admin/stats
      */
-    async getStats(req: AuthenticatedRequest, res: Response): Promise<void> {
+    async getStats(_req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
             const stats = await UserRepository.getSystemStats();
 

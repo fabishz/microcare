@@ -180,6 +180,57 @@ export class UserRepository {
       throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
+
+  /**
+   * Increment failed login attempts for a user
+   */
+  async incrementFailedLoginAttempts(id: string): Promise<void> {
+    try {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          failedLoginAttempts: {
+            increment: 1,
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error(`Failed to increment failed login attempts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Reset failed login attempts for a user
+   */
+  async resetFailedLoginAttempts(id: string): Promise<void> {
+    try {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          failedLoginAttempts: 0,
+          lockoutUntil: null,
+        },
+      });
+    } catch (error) {
+      throw new Error(`Failed to reset failed login attempts: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Lock a user account until a specific time
+   */
+  async lockAccount(id: string, lockoutUntil: Date): Promise<void> {
+    try {
+      await prisma.user.update({
+        where: { id },
+        data: {
+          lockoutUntil,
+        },
+      });
+    } catch (error) {
+      throw new Error(`Failed to lock account: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
 }
 
 export default new UserRepository();
