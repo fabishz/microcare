@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/Navbar';
+import { Navbar } from '@/components/layout/Navbar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
-import { InsightCard } from '@/components/InsightCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { InsightCard } from '@/components/journal/InsightCard';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Sparkles, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEntries } from '@/hooks/useEntries';

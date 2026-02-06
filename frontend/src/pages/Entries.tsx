@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Navbar } from '@/components/Navbar';
-import { JournalEntryCard } from '@/components/JournalEntryCard';
-import { EmptyState } from '@/components/EmptyState';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Navbar } from '@/components/layout/Navbar';
+import { JournalEntryCard } from '@/components/journal/JournalEntryCard';
+import { EmptyState } from '@/components/common/EmptyState';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Input } from '@/components/ui/input';
 import { BookOpen, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';

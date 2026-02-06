@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { Navbar } from '@/components/Navbar';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { Navbar } from '@/components/layout/Navbar';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 

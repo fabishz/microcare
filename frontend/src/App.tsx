@@ -5,8 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, UserRole } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { RoleRoute } from "@/components/RoleRoute";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { RoleRoute } from "@/components/auth/RoleRoute";
 
 import Landing from "./pages/Landing";
 import Register from "./pages/Register";
@@ -24,7 +24,7 @@ import PrivacyTerms from "./pages/PrivacyTerms";
 import FAQ from "./pages/FAQ";
 import Sitemap from "./pages/Sitemap";
 import NotFound from "./pages/NotFound";
-import { OnboardingManager } from "./components/OnboardingManager";
+import { OnboardingManager } from "./components/auth/OnboardingManager";
 
 const queryClient = new QueryClient();
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { OnboardingFlow } from './onboarding/OnboardingFlow';
+import { OnboardingFlow } from '@/components/onboarding/OnboardingFlow';
 
 /**
  * OnboardingManager
