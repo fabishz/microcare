@@ -89,7 +89,46 @@ This repository is organized as a monorepo:
 -   [`backend/`](backend/): Node.js API server.
 -   [`docker-compose.yml`](docker-compose.yml): Service orchestration.
 
-## 🤝 Contributing
+## � Testing & Integration
+
+### Frontend-Backend Integration Testing
+
+We have comprehensive integration tests to validate the frontend and backend work together:
+
+#### Quick Test Commands
+```bash
+cd frontend
+
+# Run all integration tests
+./run-integration-tests.sh
+
+# Run only API tests
+./run-integration-tests.sh api
+
+# Run only hooks tests
+./run-integration-tests.sh hooks
+```
+
+#### Test Coverage
+- **21 API Integration Tests**: Authentication, journal entries, user profiles
+- **15 React Hooks Tests**: State management, data fetching, error handling
+- **Total: 36 comprehensive tests**
+
+#### Documentation
+- [Integration Testing Guide](./frontend/INTEGRATION_TESTING.md) - Complete testing guide
+- [Testing Checklist](./INTEGRATION_TESTING_CHECKLIST.md) - Manual testing checklist
+- [Integration Summary](./FRONTEND_BACKEND_INTEGRATION_SUMMARY.md) - Overview and setup
+- [Backend API Tests](./backend/src/e2e-*.test.ts) - Backend E2E tests
+
+### Running Backend Tests
+```bash
+cd backend
+npm test -- e2e-auth.test.ts
+npm test -- e2e-entries.test.ts
+npm test -- e2e-profile.test.ts
+```
+
+## �🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
 

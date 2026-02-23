@@ -13,6 +13,9 @@ interface EnvConfig {
     expiration: string;
     refreshTokenExpiration: string;
   };
+  encryption: {
+    key: string;
+  };
   server: {
     port: number;
     nodeEnv: string;
@@ -40,6 +43,7 @@ export function validateEnv(): EnvConfig {
     'JWT_SECRET',
     'JWT_EXPIRATION',
     'REFRESH_TOKEN_EXPIRATION',
+    'ENCRYPTION_KEY',
     'PORT',
     'NODE_ENV',
     'FRONTEND_URL',
@@ -87,6 +91,9 @@ export function validateEnv(): EnvConfig {
       secret: process.env.JWT_SECRET!,
       expiration: process.env.JWT_EXPIRATION!,
       refreshTokenExpiration: process.env.REFRESH_TOKEN_EXPIRATION!,
+    },
+    encryption: {
+      key: process.env.ENCRYPTION_KEY!,
     },
     server: {
       port,

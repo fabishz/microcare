@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { JournalEntry, PaginatedResponse } from '../types/index.js';
+import { decryptText, encryptText, isEncryptedPayload } from '../utils/encryption.js';
 
 /**
  * EntryRepository
@@ -9,6 +10,70 @@ import { JournalEntry, PaginatedResponse } from '../types/index.js';
 const prisma = new PrismaClient();
 
 export class EntryRepository {
+  private async decryptEntry(entry: any): Promise<JournalEntry> {
+    const titleIsEncrypted = isEncryptedPayload({ iv: entry.titleIv, tag: entry.titleTag });
+    const contentIsEncrypted = isEncryptedPayload({ iv: entry.contentIv, tag: entry.contentTag });
+
+    let decryptedTitle = entry.title;
+    let decryptedContent = entry.content;
+
+    if (titleIsEncrypted) {
+      decryptedTitle = decryptText({
+        cipherText: entry.title,
+        iv: entry.titleIv,
+        tag: entry.titleTag,
+      });
+    }
+
+    if (contentIsEncrypted) {
+      decryptedContent = decryptText({
+        cipherText: entry.content,
+        iv: entry.contentIv,
+        tag: entry.contentTag,
+      });
+    }
+
+    if (!titleIsEncrypted || !contentIsEncrypted) {
+      await this.reencryptEntryIfNeeded(entry, decryptedTitle, decryptedContent);
+    }
+
+    return {
+      ...entry,
+      title: decryptedTitle,
+      content: decryptedContent,
+    } as JournalEntry;
+  }
+
+  private async reencryptEntryIfNeeded(entry: any, title: string, content: string): Promise<void> {
+    const needsTitle = !isEncryptedPayload({ iv: entry.titleIv, tag: entry.titleTag });
+    const needsContent = !isEncryptedPayload({ iv: entry.contentIv, tag: entry.contentTag });
+
+    if (!needsTitle && !needsContent) {
+      return;
+    }
+
+    const updates: Record<string, string> = {};
+
+    if (needsTitle) {
+      const encryptedTitle = encryptText(title);
+      updates.title = encryptedTitle.cipherText;
+      updates.titleIv = encryptedTitle.iv;
+      updates.titleTag = encryptedTitle.tag;
+    }
+
+    if (needsContent) {
+      const encryptedContent = encryptText(content);
+      updates.content = encryptedContent.cipherText;
+      updates.contentIv = encryptedContent.iv;
+      updates.contentTag = encryptedContent.tag;
+    }
+
+    await prisma.journalEntry.update({
+      where: { id: entry.id },
+      data: updates,
+    });
+  }
+
   /**
    * Create a new journal entry
    * @param userId - The user's ID
@@ -26,16 +91,23 @@ export class EntryRepository {
     tags?: string[]
   ): Promise<JournalEntry> {
     try {
+      const encryptedTitle = encryptText(title);
+      const encryptedContent = encryptText(content);
+
       const entry = await prisma.journalEntry.create({
         data: {
           userId,
-          title,
-          content,
+          title: encryptedTitle.cipherText,
+          content: encryptedContent.cipherText,
+          titleIv: encryptedTitle.iv,
+          titleTag: encryptedTitle.tag,
+          contentIv: encryptedContent.iv,
+          contentTag: encryptedContent.tag,
           mood,
           tags: tags || [],
         },
       });
-      return entry as JournalEntry;
+      return await this.decryptEntry(entry);
     } catch (error) {
       throw new Error(
         `Failed to create journal entry: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -60,7 +132,11 @@ export class EntryRepository {
         return null;
       }
 
-      return entry as JournalEntry | null;
+      if (!entry) {
+        return null;
+      }
+
+      return await this.decryptEntry(entry);
     } catch (error) {
       throw new Error(
         `Failed to find journal entry by ID: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -107,8 +183,10 @@ export class EntryRepository {
 
       const totalPages = Math.ceil(total / validLimit);
 
+      const decryptedEntries = await Promise.all(entries.map((entry) => this.decryptEntry(entry)));
+
       return {
-        data: entries as JournalEntry[],
+        data: decryptedEntries,
         total,
         page: validPage,
         limit: validLimit,
@@ -117,6 +195,24 @@ export class EntryRepository {
     } catch (error) {
       throw new Error(
         `Failed to find journal entries by user ID: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
+    }
+  }
+
+  /**
+   * Find all journal entries for a user (for export)
+   */
+  async findAllByUserId(userId: string): Promise<JournalEntry[]> {
+    try {
+      const entries = await prisma.journalEntry.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return await Promise.all(entries.map((entry) => this.decryptEntry(entry)));
+    } catch (error) {
+      throw new Error(
+        `Failed to export journal entries: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -148,12 +244,31 @@ export class EntryRepository {
         throw new Error('Entry not found or access denied');
       }
 
+      const updateData: Record<string, unknown> = {
+        mood: data.mood,
+        tags: data.tags,
+      };
+
+      if (data.title !== undefined) {
+        const encryptedTitle = encryptText(data.title);
+        updateData.title = encryptedTitle.cipherText;
+        updateData.titleIv = encryptedTitle.iv;
+        updateData.titleTag = encryptedTitle.tag;
+      }
+
+      if (data.content !== undefined) {
+        const encryptedContent = encryptText(data.content);
+        updateData.content = encryptedContent.cipherText;
+        updateData.contentIv = encryptedContent.iv;
+        updateData.contentTag = encryptedContent.tag;
+      }
+
       const updatedEntry = await prisma.journalEntry.update({
         where: { id },
-        data,
+        data: updateData,
       });
 
-      return updatedEntry as JournalEntry;
+      return await this.decryptEntry(updatedEntry);
     } catch (error) {
       throw new Error(
         `Failed to update journal entry: ${error instanceof Error ? error.message : 'Unknown error'}`
