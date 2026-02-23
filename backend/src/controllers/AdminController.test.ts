@@ -2,7 +2,7 @@ import { AdminController } from '../controllers/AdminController';
 import { UserRole } from '../types/index';
 
 // Mock dependencies
-jest.mock('../repositories/UserRepository', () => ({
+jest.mock('../repositories/UserRepository.js', () => ({
     default: {
         findAll: jest.fn(),
         getSystemStats: jest.fn(),
@@ -11,7 +11,7 @@ jest.mock('../repositories/UserRepository', () => ({
     },
 }));
 
-import UserRepository from '../repositories/UserRepository';
+import UserRepository from '../repositories/UserRepository.js';
 
 describe('AdminController', () => {
     let adminController: AdminController;
