@@ -8,6 +8,31 @@ import rateLimit from 'express-rate-limit';
  */
 
 /**
+ * Global API rate limiter
+ * Provides baseline protection for all endpoints
+ */
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === 'production' ? 300 : 2000, // Higher limits in development
+  message: 'Too many requests, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    return req.path === '/health' || req.path === '/metrics';
+  },
+  handler: (_req, res) => {
+    res.status(429).json({
+      success: false,
+      error: {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Too many requests, please try again later',
+      },
+      timestamp: new Date().toISOString(),
+    });
+  },
+});
+
+/**
  * General rate limiter for authentication endpoints
  * Limits: 5 requests per 15 minutes per IP address
  */

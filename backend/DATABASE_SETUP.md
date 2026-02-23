@@ -45,7 +45,7 @@ This command will:
 npm run dev
 ```
 
-The server will automatically run migrations on startup if any are pending.
+Note: The server does not run migrations on startup. Run migrations explicitly during setup or deployment.
 
 ## Database Initialization Script
 
@@ -229,7 +229,7 @@ npm run db:init
 npm start
 ```
 
-The application will automatically run any pending migrations on startup.
+The application does not run migrations on startup; apply migrations explicitly as part of deployment.
 
 ### Existing Deployment (Schema Updates)
 

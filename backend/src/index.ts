@@ -5,12 +5,11 @@ import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
 import { connectDatabase, disconnectDatabase } from './utils/database.js';
-import { runPendingMigrations } from './utils/migrations.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
-import { sanitizeRequestBody, sanitizeQueryParams, sanitizeUrlParams } from './middleware/validationMiddleware.js';
 import { metricsMiddleware } from './middleware/metricsMiddleware.js';
 import { validateEnv, getEnvConfig } from './utils/env.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
@@ -116,11 +115,8 @@ app.use((_req, res, next) => {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Input sanitization middleware (prevent XSS and injection attacks)
-// Requirements: 4.1, 4.2
-app.use(sanitizeRequestBody);
-app.use(sanitizeQueryParams);
-app.use(sanitizeUrlParams);
+// Global rate limiting for API protection
+app.use('/api', apiLimiter);
 
 // Request logging middleware
 app.use(requestLogger);
@@ -224,20 +220,6 @@ async function startServer() {
   try {
     // Connect to database
     await connectDatabase();
-
-    // Run pending database migrations
-    // Requirements: 6.1, 6.4
-    try {
-      logger.info('Running database migrations...');
-      await runPendingMigrations();
-    } catch (migrationError) {
-      logger.error('Failed to run database migrations:', {
-        error: migrationError instanceof Error ? migrationError.message : String(migrationError)
-      });
-      logger.error('Server startup aborted due to migration failure');
-      await disconnectDatabase();
-      process.exit(1);
-    }
 
     const server = app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);

@@ -12,7 +12,9 @@ This project and everyone participating in it is governed by the [MicroCare Code
 
 ### Using Docker (Recommended)
 
+
 The easiest way to get started is using Docker Compose:
+
 
 ```bash
 docker-compose up --build
@@ -25,7 +27,7 @@ If you prefer running services individually:
 
 1.  **Fork and Clone**:
     ```bash
-    git clone https://github.com/your-username/microcare.git
+    git clone https://github.com/fabishz/microcare.git
     cd microcare
     ```
 
