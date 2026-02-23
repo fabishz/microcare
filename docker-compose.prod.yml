@@ -14,10 +14,13 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - LOG_LEVEL=info
+      - REDIS_URL=redis://redis:6379
     ports:
       - "3000:3000"
     depends_on:
       db:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     networks:
       - microcare-network
@@ -40,6 +43,35 @@ services:
     networks:
       - microcare-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: microcare-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - microcare-network
+
+  backend-worker:
+    build:
+      context: ./backend
+      target: production
+    container_name: microcare-backend-worker
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://user:password@db:5432/microcare?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - LOG_LEVEL=info
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - microcare-network
   # Note: Frontend is typically served via Nginx in production
   # For this setup, we assume a static build or a simple Nginx container
   frontend:

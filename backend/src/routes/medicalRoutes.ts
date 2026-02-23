@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/medical/analytics:
+ * /api/v1/medical/analytics:
  *   get:
  *     summary: Get mood analytics (Medical Professional/Admin only)
  *     description: Retrieve aggregated, anonymized mood analytics
@@ -32,7 +32,7 @@ router.get(
 
 /**
  * @swagger
- * /api/medical/overview:
+ * /api/v1/medical/overview:
  *   get:
  *     summary: Get patient overview (Medical Professional/Admin only)
  *     description: Retrieve patient activity overview

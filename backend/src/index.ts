@@ -10,6 +10,8 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { metricsMiddleware } from './middleware/metricsMiddleware.js';
 import { validateEnv, getEnvConfig } from './utils/env.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import { prometheusMiddleware } from './middleware/prometheusMiddleware.js';
+import { register as prometheusRegister } from './utils/prometheus.js';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
@@ -124,6 +126,7 @@ app.use(requestLogger);
 // Metrics collection middleware
 // Requirements: 8.1, 8.5
 app.use(metricsMiddleware);
+app.use(prometheusMiddleware);
 
 // Health check endpoint with detailed metrics
 // Requirements: 8.1, 8.5
@@ -184,6 +187,20 @@ app.get('/api/metrics', async (_req, res) => {
   }
 });
 
+// Prometheus metrics endpoint
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', prometheusRegister.contentType);
+    res.send(await prometheusRegister.metrics());
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      error: error instanceof Error ? error.message : 'Failed to collect Prometheus metrics',
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
 // Swagger UI documentation
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   swaggerOptions: {
@@ -194,20 +211,22 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'MicroCare API Documentation',
 }));
 
+const apiBase = '/api/v1/v1';
+
 // Authentication routes
-app.use('/api/auth', authRoutes);
+app.use(`${apiBase}/auth`, authRoutes);
 
 // User profile routes
-app.use('/api/users', userRoutes);
+app.use(`${apiBase}/users`, userRoutes);
 
 // Journal entry routes
-app.use('/api/entries', entryRoutes);
+app.use(`${apiBase}/entries`, entryRoutes);
 
 // Admin routes (protected by role middleware)
-app.use('/api/admin', adminRoutes);
+app.use(`${apiBase}/admin`, adminRoutes);
 
 // Medical professional routes (protected by role middleware)
-app.use('/api/medical', medicalRoutes);
+app.use(`${apiBase}/medical`, medicalRoutes);
 
 // 404 Not Found middleware (place before error handler)
 app.use(notFoundHandler);

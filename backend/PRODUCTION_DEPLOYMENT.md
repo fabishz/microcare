@@ -56,6 +56,9 @@ FRONTEND_URL=https://microcare.example.com
 
 # Logging
 LOG_LEVEL=info
+
+# Redis (Background Jobs)
+REDIS_URL=redis://[host]:6379
 ```
 
 ### 2. Database Setup
@@ -117,6 +120,9 @@ npx prisma migrate status
 # Start the application
 npm start
 
+# Start background worker
+npm run worker
+
 # Verify application is running
 curl http://localhost:3000/api/health
 
@@ -128,7 +134,7 @@ tail -f logs/app.log
 
 ```bash
 # Test API endpoints
-curl -X POST https://microcare.example.com/api/auth/login \
+curl -X POST https://microcare.example.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 
@@ -223,16 +229,16 @@ psql microcare -c "SELECT * FROM _prisma_migrations WHERE execution_failure_reas
 
 ```bash
 # Test authentication
-curl -X POST https://microcare.example.com/api/auth/login \
+curl -X POST https://microcare.example.com/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","password":"password"}'
 
 # Test user profile
-curl -X GET https://microcare.example.com/api/users/profile \
+curl -X GET https://microcare.example.com/api/v1/users/profile \
   -H "Authorization: Bearer [token]"
 
 # Test entries
-curl -X GET https://microcare.example.com/api/entries \
+curl -X GET https://microcare.example.com/api/v1/entries \
   -H "Authorization: Bearer [token]"
 ```
 
@@ -435,7 +441,7 @@ curl -I https://microcare.example.com/api/health
 # Verify rate limiting is active
 # Test with multiple requests
 for i in {1..100}; do
-  curl https://microcare.example.com/api/auth/login
+  curl https://microcare.example.com/api/v1/auth/login
 done
 
 # Should receive 429 Too Many Requests after limit

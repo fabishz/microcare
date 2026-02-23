@@ -64,7 +64,7 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
-            const data = await apiClient.get<SystemStats>('/api/admin/stats');
+            const data = await apiClient.get<SystemStats>('/api/v1/admin/stats');
             setStats(data);
         } catch (error) {
             console.error('Failed to fetch stats:', error);
@@ -81,7 +81,7 @@ export default function AdminDashboard() {
                 ...(searchQuery && { search: searchQuery }),
             });
 
-            const data = await apiClient.get<UsersResponse>(`/api/admin/users?${params}`);
+            const data = await apiClient.get<UsersResponse>(`/api/v1/admin/users?${params}`);
             setUsers(data.data);
             setTotalPages(data.totalPages);
         } catch (error) {
@@ -94,7 +94,7 @@ export default function AdminDashboard() {
 
     const handleRoleChange = async (userId: string, newRole: string) => {
         try {
-            await apiClient.put(`/api/admin/users/${userId}/role`, { role: newRole });
+            await apiClient.put(`/api/v1/admin/users/${userId}/role`, { role: newRole });
             toast.success('User role updated successfully');
             fetchUsers();
             fetchStats();
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
         }
 
         try {
-            await apiClient.delete(`/api/admin/users/${userId}`);
+            await apiClient.delete(`/api/v1/admin/users/${userId}`);
             toast.success('User deleted successfully');
             fetchUsers();
             fetchStats();

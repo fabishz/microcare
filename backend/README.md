@@ -13,6 +13,7 @@ A professional, scalable backend API for the **MicroCare** mental health and wel
 - **Framework**: Express.js
 - **Language**: TypeScript
 - **Database**: PostgreSQL
+- **Background Jobs**: Redis + BullMQ
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcrypt
 
@@ -35,6 +36,7 @@ src/
 
 -   Node.js 18+ (tested with v20+)
 -   PostgreSQL 12+
+-   Redis 7+
 
 ### Installation & Setup
 
@@ -63,6 +65,7 @@ src/
     npm run dev
     ```
     The server will start at `http://localhost:3000`.
+    The worker can be started with `npm run worker`.
 
 ## Documentation
 
@@ -71,27 +74,28 @@ src/
 -   [API Documentation (Guide)](API.md)
 -   [Interactive API Docs (Swagger)](src/config/swagger.ts) (Available at `/api/docs` when server is running)
 -   [Database Setup](DATABASE_SETUP.md)
+-   [Monitoring](MONITORING.md)
 
 
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - User registration
-- `POST /api/auth/login` - User login
-- `POST /api/auth/logout` - User logout
-- `POST /api/auth/refresh` - Refresh access token
+- `POST /api/v1/auth/register` - User registration
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/logout` - User logout
+- `POST /api/v1/auth/refresh` - Refresh access token
 
 ### User Profile
-- `GET /api/users/profile` - Get current user profile
-- `PUT /api/users/profile` - Update user profile
-- `POST /api/users/change-password` - Change password
+- `GET /api/v1/users/profile` - Get current user profile
+- `PUT /api/v1/users/profile` - Update user profile
+- `POST /api/v1/users/change-password` - Change password
 
 ### Journal Entries
-- `POST /api/entries` - Create new entry
-- `GET /api/entries` - List user's entries (paginated)
-- `GET /api/entries/:id` - Get specific entry
-- `PUT /api/entries/:id` - Update entry
-- `DELETE /api/entries/:id` - Delete entry
+- `POST /api/v1/entries` - Create new entry
+- `GET /api/v1/entries` - List user's entries (paginated)
+- `GET /api/v1/entries/:id` - Get specific entry
+- `PUT /api/v1/entries/:id` - Update entry
+- `DELETE /api/v1/entries/:id` - Delete entry
 
 ## Environment Variables
 

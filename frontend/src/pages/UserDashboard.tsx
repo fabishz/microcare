@@ -41,7 +41,7 @@ export default function UserDashboard() {
         try {
             setIsLoading(true);
             // Fetch user's entries to calculate stats
-            const entries = await apiClient.get<any>('/api/entries');
+            const entries = await apiClient.get<any>('/api/v1/entries');
 
             // Calculate stats from entries
             const now = new Date();

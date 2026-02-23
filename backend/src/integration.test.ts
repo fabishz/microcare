@@ -83,10 +83,10 @@ describe('Integration Tests - MicroCare API', () => {
   const describeIfDb = dbConnected ? describe : describe.skip;
 
   describeIfDb('Authentication Flow', () => {
-    describe('POST /api/auth/register', () => {
+    describe('POST /api/v1/auth/register', () => {
       it('should register a new user successfully', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send(testUser)
           .expect(201);
 
@@ -105,7 +105,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when email is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send({
             password: testUser.password,
             name: testUser.name,
@@ -118,7 +118,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when password is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send({
             email: 'test@example.com',
             name: testUser.name,
@@ -131,7 +131,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when name is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send({
             email: 'test@example.com',
             password: testUser.password,
@@ -144,7 +144,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when email format is invalid', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send({
             email: 'invalid-email',
             password: testUser.password,
@@ -158,7 +158,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 409 when email is already registered', async () => {
         const response = await request(app)
-          .post('/api/auth/register')
+          .post('/api/v1/auth/register')
           .send(testUser)
           .expect(409);
 
@@ -167,10 +167,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('POST /api/auth/login', () => {
+    describe('POST /api/v1/auth/login', () => {
       it('should login user successfully with valid credentials', async () => {
         const response = await request(app)
-          .post('/api/auth/login')
+          .post('/api/v1/auth/login')
           .send({
             email: testUser.email,
             password: testUser.password,
@@ -185,7 +185,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when email is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/login')
+          .post('/api/v1/auth/login')
           .send({
             password: testUser.password,
           })
@@ -197,7 +197,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when password is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/login')
+          .post('/api/v1/auth/login')
           .send({
             email: testUser.email,
           })
@@ -209,7 +209,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when password is incorrect', async () => {
         const response = await request(app)
-          .post('/api/auth/login')
+          .post('/api/v1/auth/login')
           .send({
             email: testUser.email,
             password: 'WrongPassword123!',
@@ -222,7 +222,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when email does not exist', async () => {
         const response = await request(app)
-          .post('/api/auth/login')
+          .post('/api/v1/auth/login')
           .send({
             email: 'nonexistent@example.com',
             password: testUser.password,
@@ -234,10 +234,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('POST /api/auth/logout', () => {
+    describe('POST /api/v1/auth/logout', () => {
       it('should logout user successfully', async () => {
         const response = await request(app)
-          .post('/api/auth/logout')
+          .post('/api/v1/auth/logout')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -247,7 +247,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/logout')
+          .post('/api/v1/auth/logout')
           .expect(401);
 
         expect(response.body.success).toBe(false);
@@ -256,7 +256,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is invalid', async () => {
         const response = await request(app)
-          .post('/api/auth/logout')
+          .post('/api/v1/auth/logout')
           .set('Authorization', 'Bearer invalid-token')
           .expect(401);
 
@@ -265,10 +265,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('POST /api/auth/refresh', () => {
+    describe('POST /api/v1/auth/refresh', () => {
       it('should refresh access token successfully', async () => {
         const response = await request(app)
-          .post('/api/auth/refresh')
+          .post('/api/v1/auth/refresh')
           .send({ refreshToken })
           .expect(200);
 
@@ -282,7 +282,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when refresh token is missing', async () => {
         const response = await request(app)
-          .post('/api/auth/refresh')
+          .post('/api/v1/auth/refresh')
           .send({})
           .expect(400);
 
@@ -292,7 +292,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when refresh token is invalid', async () => {
         const response = await request(app)
-          .post('/api/auth/refresh')
+          .post('/api/v1/auth/refresh')
           .send({ refreshToken: 'invalid-token' })
           .expect(401);
 
@@ -303,10 +303,10 @@ describe('Integration Tests - MicroCare API', () => {
   });
 
   describeIfDb('User Profile Management', () => {
-    describe('GET /api/users/profile', () => {
+    describe('GET /api/v1/users/profile', () => {
       it('should get user profile successfully', async () => {
         const response = await request(app)
-          .get('/api/users/profile')
+          .get('/api/v1/users/profile')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -318,7 +318,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .get('/api/users/profile')
+          .get('/api/v1/users/profile')
           .expect(401);
 
         expect(response.body.success).toBe(false);
@@ -327,7 +327,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is invalid', async () => {
         const response = await request(app)
-          .get('/api/users/profile')
+          .get('/api/v1/users/profile')
           .set('Authorization', 'Bearer invalid-token')
           .expect(401);
 
@@ -336,7 +336,7 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('PUT /api/users/profile', () => {
+    describe('PUT /api/v1/users/profile', () => {
       it('should update user profile successfully', async () => {
         const updatedData = {
           name: 'Updated Name',
@@ -344,7 +344,7 @@ describe('Integration Tests - MicroCare API', () => {
         };
 
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .set('Authorization', `Bearer ${accessToken}`)
           .send(updatedData)
           .expect(200);
@@ -356,7 +356,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should update only name', async () => {
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ name: 'Another Name' })
           .expect(200);
@@ -367,7 +367,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when no fields are provided', async () => {
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({})
           .expect(400);
@@ -378,7 +378,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when email format is invalid', async () => {
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ email: 'invalid-email' })
           .expect(400);
@@ -389,7 +389,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .send({ name: 'New Name' })
           .expect(401);
 
@@ -398,11 +398,11 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('POST /api/users/change-password', () => {
+    describe('POST /api/v1/users/change-password', () => {
       it('should change password successfully', async () => {
         const newPassword = 'NewPassword456!';
         const response = await request(app)
-          .post('/api/users/change-password')
+          .post('/api/v1/users/change-password')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({
             currentPassword: testUser.password,
@@ -418,7 +418,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when current password is missing', async () => {
         const response = await request(app)
-          .post('/api/users/change-password')
+          .post('/api/v1/users/change-password')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ newPassword: 'NewPassword789!' })
           .expect(400);
@@ -429,7 +429,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when new password is missing', async () => {
         const response = await request(app)
-          .post('/api/users/change-password')
+          .post('/api/v1/users/change-password')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ currentPassword: testUser.password })
           .expect(400);
@@ -440,7 +440,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when current password is incorrect', async () => {
         const response = await request(app)
-          .post('/api/users/change-password')
+          .post('/api/v1/users/change-password')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({
             currentPassword: 'WrongPassword123!',
@@ -454,7 +454,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .post('/api/users/change-password')
+          .post('/api/v1/users/change-password')
           .send({
             currentPassword: testUser.password,
             newPassword: 'NewPassword789!',
@@ -468,7 +468,7 @@ describe('Integration Tests - MicroCare API', () => {
   });
 
   describeIfDb('Journal Entry Management', () => {
-    describe('POST /api/entries', () => {
+    describe('POST /api/v1/entries', () => {
       it('should create a journal entry successfully', async () => {
         const entryData = {
           title: 'My First Entry',
@@ -478,7 +478,7 @@ describe('Integration Tests - MicroCare API', () => {
         };
 
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${accessToken}`)
           .send(entryData)
           .expect(201);
@@ -501,7 +501,7 @@ describe('Integration Tests - MicroCare API', () => {
         };
 
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${accessToken}`)
           .send(entryData)
           .expect(201);
@@ -513,7 +513,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when title is missing', async () => {
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ content: 'Content without title' })
           .expect(400);
@@ -524,7 +524,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when content is missing', async () => {
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ title: 'Title without content' })
           .expect(400);
@@ -535,7 +535,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .send({
             title: 'Entry',
             content: 'Content',
@@ -547,10 +547,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('GET /api/entries', () => {
+    describe('GET /api/v1/entries', () => {
       it('should get user entries with default pagination', async () => {
         const response = await request(app)
-          .get('/api/entries')
+          .get('/api/v1/entries')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -567,7 +567,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should get user entries with custom pagination', async () => {
         const response = await request(app)
-          .get('/api/entries?page=1&limit=5')
+          .get('/api/v1/entries?page=1&limit=5')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -578,7 +578,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should get user entries sorted by updatedAt', async () => {
         const response = await request(app)
-          .get('/api/entries?sortBy=updatedAt&order=asc')
+          .get('/api/v1/entries?sortBy=updatedAt&order=asc')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -588,7 +588,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when page is less than 1', async () => {
         const response = await request(app)
-          .get('/api/entries?page=0')
+          .get('/api/v1/entries?page=0')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(400);
 
@@ -598,7 +598,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when limit exceeds 100', async () => {
         const response = await request(app)
-          .get('/api/entries?limit=101')
+          .get('/api/v1/entries?limit=101')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(400);
 
@@ -608,7 +608,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .get('/api/entries')
+          .get('/api/v1/entries')
           .expect(401);
 
         expect(response.body.success).toBe(false);
@@ -616,10 +616,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('GET /api/entries/:id', () => {
+    describe('GET /api/v1/entries/:id', () => {
       it('should get a specific entry successfully', async () => {
         const response = await request(app)
-          .get(`/api/entries/${entryId}`)
+          .get(`/api/v1/entries/${entryId}`)
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(200);
 
@@ -630,7 +630,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when entry ID is missing', async () => {
         const response = await request(app)
-          .get('/api/entries/')
+          .get('/api/v1/entries/')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(404);
 
@@ -639,7 +639,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 404 when entry does not exist', async () => {
         const response = await request(app)
-          .get('/api/entries/00000000-0000-0000-0000-000000000000')
+          .get('/api/v1/entries/00000000-0000-0000-0000-000000000000')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(404);
 
@@ -649,7 +649,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .get(`/api/entries/${entryId}`)
+          .get(`/api/v1/entries/${entryId}`)
           .expect(401);
 
         expect(response.body.success).toBe(false);
@@ -657,7 +657,7 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('PUT /api/entries/:id', () => {
+    describe('PUT /api/v1/entries/:id', () => {
       it('should update entry successfully', async () => {
         const updateData = {
           title: 'Updated Entry Title',
@@ -666,7 +666,7 @@ describe('Integration Tests - MicroCare API', () => {
         };
 
         const response = await request(app)
-          .put(`/api/entries/${entryId}`)
+          .put(`/api/v1/entries/${entryId}`)
           .set('Authorization', `Bearer ${accessToken}`)
           .send(updateData)
           .expect(200);
@@ -679,7 +679,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should update only title', async () => {
         const response = await request(app)
-          .put(`/api/entries/${entryId}`)
+          .put(`/api/v1/entries/${entryId}`)
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ title: 'New Title Only' })
           .expect(200);
@@ -690,7 +690,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 400 when no fields are provided', async () => {
         const response = await request(app)
-          .put(`/api/entries/${entryId}`)
+          .put(`/api/v1/entries/${entryId}`)
           .set('Authorization', `Bearer ${accessToken}`)
           .send({})
           .expect(400);
@@ -701,7 +701,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .put(`/api/entries/${entryId}`)
+          .put(`/api/v1/entries/${entryId}`)
           .send({ title: 'New Title' })
           .expect(401);
 
@@ -711,7 +711,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 404 when entry does not exist', async () => {
         const response = await request(app)
-          .put('/api/entries/00000000-0000-0000-0000-000000000000')
+          .put('/api/v1/entries/00000000-0000-0000-0000-000000000000')
           .set('Authorization', `Bearer ${accessToken}`)
           .send({ title: 'New Title' })
           .expect(404);
@@ -721,10 +721,10 @@ describe('Integration Tests - MicroCare API', () => {
       });
     });
 
-    describe('DELETE /api/entries/:id', () => {
+    describe('DELETE /api/v1/entries/:id', () => {
       it('should delete entry successfully', async () => {
         const response = await request(app)
-          .delete(`/api/entries/${entryId}`)
+          .delete(`/api/v1/entries/${entryId}`)
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(204);
 
@@ -733,7 +733,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 401 when token is missing', async () => {
         const response = await request(app)
-          .delete(`/api/entries/${entryId}`)
+          .delete(`/api/v1/entries/${entryId}`)
           .expect(401);
 
         expect(response.body.success).toBe(false);
@@ -742,7 +742,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should return 404 when entry does not exist', async () => {
         const response = await request(app)
-          .delete('/api/entries/00000000-0000-0000-0000-000000000000')
+          .delete('/api/v1/entries/00000000-0000-0000-0000-000000000000')
           .set('Authorization', `Bearer ${accessToken}`)
           .expect(404);
 
@@ -766,7 +766,7 @@ describe('Integration Tests - MicroCare API', () => {
       };
 
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       secondUserToken = registerResponse.body.data.accessToken;
@@ -774,7 +774,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       // Create an entry for the second user
       const entryResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           title: 'Second User Entry',
@@ -796,7 +796,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should not allow user to access another user\'s entry', async () => {
       const response = await request(app)
-        .get(`/api/entries/${secondUserEntryId}`)
+        .get(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -806,7 +806,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should not allow user to update another user\'s entry', async () => {
       const response = await request(app)
-        .put(`/api/entries/${secondUserEntryId}`)
+        .put(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: 'Hacked Title' })
         .expect(403);
@@ -817,7 +817,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should not allow user to delete another user\'s entry', async () => {
       const response = await request(app)
-        .delete(`/api/entries/${secondUserEntryId}`)
+        .delete(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -827,7 +827,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should only return entries belonging to the authenticated user', async () => {
       const response = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -842,7 +842,7 @@ describe('Integration Tests - MicroCare API', () => {
   describeIfDb('Error Scenarios', () => {
     it('should return 404 for non-existent endpoint', async () => {
       const response = await request(app)
-        .get('/api/nonexistent')
+        .get('/api/v1/nonexistent')
         .expect(404);
 
       expect(response.body.success).toBe(false);
@@ -851,7 +851,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should return 401 for protected endpoint without token', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -860,7 +860,7 @@ describe('Integration Tests - MicroCare API', () => {
 
     it('should return 401 for protected endpoint with malformed token', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer malformed.token.here')
         .expect(401);
 
@@ -873,7 +873,7 @@ describe('Integration Tests - MicroCare API', () => {
       const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjB9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${expiredToken}`)
         .expect(401);
 
@@ -949,7 +949,7 @@ describe('Integration Tests - MicroCare API', () => {
     beforeAll(async () => {
       // Register and login a test user for sanitization tests
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           email: 'sanitization-test@example.com',
           password: 'TestPassword123!',
@@ -974,7 +974,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML special characters in entry title', async () => {
         const maliciousTitle = '<script>alert("XSS")</script>';
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: maliciousTitle,
@@ -991,7 +991,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML special characters in entry content', async () => {
         const maliciousContent = '<img src=x onerror="alert(\'XSS\')">';
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1008,7 +1008,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML special characters in tags', async () => {
         const maliciousTags = ['<script>alert("XSS")</script>', 'normal-tag'];
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1025,7 +1025,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML special characters in user profile name', async () => {
         const maliciousName = '<img src=x onerror="alert(\'XSS\')">';
         const response = await request(app)
-          .put('/api/users/profile')
+          .put('/api/v1/users/profile')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             name: maliciousName,
@@ -1039,7 +1039,7 @@ describe('Integration Tests - MicroCare API', () => {
 
       it('should trim whitespace from inputs', async () => {
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: '  Test Title with Spaces  ',
@@ -1056,7 +1056,7 @@ describe('Integration Tests - MicroCare API', () => {
     describe('XSS Prevention in Query Parameters', () => {
       it('should sanitize query parameters', async () => {
         const response = await request(app)
-          .get('/api/entries?page=1&limit=10&sortBy=<script>alert("XSS")</script>')
+          .get('/api/v1/entries?page=1&limit=10&sortBy=<script>alert("XSS")</script>')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .expect(200);
 
@@ -1069,7 +1069,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should prevent SQL injection in entry title', async () => {
         const sqlInjectionPayload = "'; DROP TABLE users; --";
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: sqlInjectionPayload,
@@ -1091,7 +1091,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should prevent SQL injection in entry content', async () => {
         const sqlInjectionPayload = "1' OR '1'='1";
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1108,7 +1108,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should handle quotes in entry content', async () => {
         const contentWithQuotes = 'He said "Hello" and she replied \'Hi\'';
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1122,9 +1122,9 @@ describe('Integration Tests - MicroCare API', () => {
       });
 
       it('should handle forward slashes in entry content', async () => {
-        const contentWithSlashes = 'Path: /api/users/profile';
+        const contentWithSlashes = 'Path: /api/v1/users/profile';
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1139,7 +1139,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should handle ampersands in entry content', async () => {
         const contentWithAmpersand = 'Tom & Jerry';
         const response = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Test Title',
@@ -1158,7 +1158,7 @@ describe('Integration Tests - MicroCare API', () => {
       beforeAll(async () => {
         // Create an entry to update
         const createResponse = await request(app)
-          .post('/api/entries')
+          .post('/api/v1/entries')
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: 'Original Title',
@@ -1171,7 +1171,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML in updated entry title', async () => {
         const maliciousTitle = '<script>alert("XSS")</script>';
         const response = await request(app)
-          .put(`/api/entries/${entryIdForUpdate}`)
+          .put(`/api/v1/entries/${entryIdForUpdate}`)
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             title: maliciousTitle,
@@ -1186,7 +1186,7 @@ describe('Integration Tests - MicroCare API', () => {
       it('should sanitize HTML in updated entry content', async () => {
         const maliciousContent = '<img src=x onerror="alert(\'XSS\')">';
         const response = await request(app)
-          .put(`/api/entries/${entryIdForUpdate}`)
+          .put(`/api/v1/entries/${entryIdForUpdate}`)
           .set('Authorization', `Bearer ${testAccessToken}`)
           .send({
             content: maliciousContent,

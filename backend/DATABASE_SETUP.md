@@ -28,6 +28,7 @@ PORT=3000
 DATABASE_URL=postgresql://postgres:password@localhost:5432/microcare_dev
 JWT_SECRET=your-dev-secret-key
 FRONTEND_URL=http://localhost:5173
+REDIS_URL=redis://localhost:6379
 ```
 
 3. **Initialize the database**:
@@ -82,6 +83,7 @@ Running pending database migrations...
 - PostgreSQL 12 or higher
 - Node.js 18 or higher
 - npm or yarn package manager
+- Redis 7+ (for background jobs)
 
 ### PostgreSQL Installation
 

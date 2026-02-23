@@ -45,7 +45,7 @@ private isTokenExpired(token: string): boolean {
 
 **Automatic Refresh Flow**:
 1. Before each API request, check if token is expired
-2. If expired, call `/api/auth/refresh` with refresh token
+2. If expired, call `/api/v1/auth/refresh` with refresh token
 3. Backend validates refresh token and returns new access token
 4. New token is stored and request is retried
 5. If refresh fails, user is redirected to login
@@ -126,7 +126,7 @@ const response = await apiClient.post<{
   accessToken: string;
   refreshToken: string;
   user: User;
-}>('/api/auth/login', { email, password }, { skipAuth: true });
+}>('/api/v1/auth/login', { email, password }, { skipAuth: true });
 
 apiClient.setToken(response.accessToken, response.refreshToken);
 ```
@@ -166,7 +166,7 @@ Tests cover:
 
 ## Backend Integration
 
-**Refresh Endpoint**: `POST /api/auth/refresh`
+**Refresh Endpoint**: `POST /api/v1/auth/refresh`
 
 Request:
 ```json

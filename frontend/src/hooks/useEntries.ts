@@ -66,7 +66,7 @@ export function useEntries() {
     async (page: number = 1, limit: number = 10) => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const response = await apiClient.get<PaginatedEntries>('/api/entries', {
+        const response = await apiClient.get<PaginatedEntries>('/api/v1/entries', {
           params: { page, limit },
         });
 
@@ -101,7 +101,7 @@ export function useEntries() {
   const getEntry = useCallback(async (id: string): Promise<JournalEntry> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const entry = await apiClient.get<JournalEntry>(`/api/entries/${id}`);
+      const entry = await apiClient.get<JournalEntry>(`/api/v1/entries/${id}`);
       setState((prev) => ({ ...prev, isLoading: false }));
       return entry;
     } catch (err) {
@@ -123,7 +123,7 @@ export function useEntries() {
     async (input: CreateEntryInput): Promise<JournalEntry> => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        const newEntry = await apiClient.post<JournalEntry>('/api/entries', input);
+        const newEntry = await apiClient.post<JournalEntry>('/api/v1/entries', input);
         setState((prev) => ({
           ...prev,
           entries: [newEntry, ...prev.entries],
@@ -156,7 +156,7 @@ export function useEntries() {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
         const updatedEntry = await apiClient.put<JournalEntry>(
-          `/api/entries/${id}`,
+          `/api/v1/entries/${id}`,
           input
         );
         setState((prev) => ({
@@ -187,7 +187,7 @@ export function useEntries() {
   const deleteEntry = useCallback(async (id: string): Promise<void> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      await apiClient.delete(`/api/entries/${id}`);
+      await apiClient.delete(`/api/v1/entries/${id}`);
       setState((prev) => ({
         ...prev,
         entries: prev.entries.filter((entry) => entry.id !== id),

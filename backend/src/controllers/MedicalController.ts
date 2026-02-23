@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 export class MedicalController {
     /**
      * Get aggregated mood analytics
-     * GET /api/medical/analytics
+     * GET /api/v1/medical/analytics
      */
     async getAnalytics(_req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
@@ -62,7 +62,7 @@ export class MedicalController {
 
     /**
      * Get patient overview
-     * GET /api/medical/overview
+     * GET /api/v1/medical/overview
      */
     async getOverview(_req: AuthenticatedRequest, res: Response): Promise<void> {
         try {

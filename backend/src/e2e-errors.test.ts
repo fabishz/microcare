@@ -52,14 +52,14 @@ describe('E2E Tests - Error Scenarios', () => {
 
       // Register and login test user
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(testUser);
 
       accessToken = registerResponse.body.data.accessToken;
 
       // Create a test entry
       const entryResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Test Entry for Error Scenarios',
@@ -106,7 +106,7 @@ describe('E2E Tests - Error Scenarios', () => {
   describeIfDb('401 Unauthorized Error Scenarios', () => {
     it('should return 401 when Authorization header is missing', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -117,7 +117,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when Authorization header is empty', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', '')
         .expect(401);
 
@@ -127,7 +127,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when Authorization header has invalid format', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'InvalidFormat')
         .expect(401);
 
@@ -137,7 +137,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when Bearer token is missing', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer')
         .expect(401);
 
@@ -147,7 +147,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer invalid-token-string')
         .expect(401);
 
@@ -157,7 +157,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when token is malformed JWT', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.invalid.invalid')
         .expect(401);
 
@@ -167,7 +167,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when token has wrong signature', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c')
         .expect(401);
 
@@ -179,7 +179,7 @@ describe('E2E Tests - Error Scenarios', () => {
       // Create an expired token (this would require mocking or a special endpoint)
       // For now, we test with an obviously invalid token
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjB9.invalid')
         .expect(401);
 
@@ -189,7 +189,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when accessing protected endpoint without token', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .send({
           title: 'Test',
           content: 'Test',
@@ -202,7 +202,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when accessing profile endpoint without token', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .send({ name: 'New Name' })
         .expect(401);
 
@@ -212,7 +212,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 401 when accessing change-password endpoint without token', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .send({
           currentPassword: 'test',
           newPassword: 'test',
@@ -238,7 +238,7 @@ describe('E2E Tests - Error Scenarios', () => {
       };
 
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       secondUserToken = registerResponse.body.data.accessToken;
@@ -246,7 +246,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
       // Create an entry for the second user
       const entryResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           title: 'Second User Entry',
@@ -268,7 +268,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 403 when accessing another user\'s entry', async () => {
       const response = await request(app)
-        .get(`/api/entries/${secondUserEntryId}`)
+        .get(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -279,7 +279,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 403 when updating another user\'s entry', async () => {
       const response = await request(app)
-        .put(`/api/entries/${secondUserEntryId}`)
+        .put(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: 'Hacked Title' })
         .expect(403);
@@ -290,7 +290,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 403 when deleting another user\'s entry', async () => {
       const response = await request(app)
-        .delete(`/api/entries/${secondUserEntryId}`)
+        .delete(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -300,7 +300,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 403 when attempting to change another user\'s password', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           currentPassword: testUser.password,
@@ -315,7 +315,7 @@ describe('E2E Tests - Error Scenarios', () => {
   describeIfDb('404 Not Found Error Scenarios', () => {
     it('should return 404 when accessing non-existent entry', async () => {
       const response = await request(app)
-        .get('/api/entries/00000000-0000-0000-0000-000000000000')
+        .get('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -326,7 +326,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 404 when updating non-existent entry', async () => {
       const response = await request(app)
-        .put('/api/entries/00000000-0000-0000-0000-000000000000')
+        .put('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: 'New Title' })
         .expect(404);
@@ -337,7 +337,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 404 when deleting non-existent entry', async () => {
       const response = await request(app)
-        .delete('/api/entries/00000000-0000-0000-0000-000000000000')
+        .delete('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -347,7 +347,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 404 when accessing non-existent endpoint', async () => {
       const response = await request(app)
-        .get('/api/nonexistent-endpoint')
+        .get('/api/v1/nonexistent-endpoint')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -357,7 +357,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 404 when accessing non-existent route', async () => {
       const response = await request(app)
-        .post('/api/invalid/route/path')
+        .post('/api/v1/invalid/route/path')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(404);
@@ -370,7 +370,7 @@ describe('E2E Tests - Error Scenarios', () => {
   describeIfDb('400 Bad Request Error Scenarios', () => {
     it('should return 400 when creating entry without title', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           content: 'Content without title',
@@ -384,7 +384,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when creating entry without content', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Title without content',
@@ -397,7 +397,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when creating entry with empty title', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: '',
@@ -411,7 +411,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when creating entry with empty content', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Some title',
@@ -425,7 +425,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when creating entry with invalid mood', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Entry with invalid mood',
@@ -440,7 +440,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when registering without email', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           password: 'Password123!',
           name: 'Test User',
@@ -453,7 +453,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when registering without password', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           email: 'test@example.com',
           name: 'Test User',
@@ -466,7 +466,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when registering without name', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           email: 'test@example.com',
           password: 'Password123!',
@@ -479,7 +479,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when registering with invalid email format', async () => {
       const response = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send({
           email: 'invalid-email-format',
           password: 'Password123!',
@@ -493,7 +493,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when logging in without email', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           password: 'Password123!',
         })
@@ -505,7 +505,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when logging in without password', async () => {
       const response = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: 'test@example.com',
         })
@@ -517,7 +517,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating profile with empty name', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '' })
         .expect(400);
@@ -528,7 +528,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating profile with invalid email', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: 'invalid-email' })
         .expect(400);
@@ -539,7 +539,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating profile with no fields', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(400);
@@ -550,7 +550,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when changing password without current password', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           newPassword: 'NewPassword123!',
@@ -563,7 +563,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when changing password without new password', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
@@ -576,7 +576,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when listing entries with invalid page', async () => {
       const response = await request(app)
-        .get('/api/entries?page=0')
+        .get('/api/v1/entries?page=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -586,7 +586,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when listing entries with invalid limit', async () => {
       const response = await request(app)
-        .get('/api/entries?limit=0')
+        .get('/api/v1/entries?limit=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -596,7 +596,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when listing entries with limit exceeding maximum', async () => {
       const response = await request(app)
-        .get('/api/entries?limit=101')
+        .get('/api/v1/entries?limit=101')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -606,7 +606,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating entry with empty title', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: '' })
         .expect(400);
@@ -617,7 +617,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating entry with empty content', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ content: '' })
         .expect(400);
@@ -628,7 +628,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return 400 when updating entry with no fields', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(400);
@@ -641,7 +641,7 @@ describe('E2E Tests - Error Scenarios', () => {
   describeIfDb('Error Response Format Validation', () => {
     it('should return consistent error response format for 401 errors', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .expect(401);
 
       expect(response.body).toHaveProperty('success');
@@ -665,13 +665,13 @@ describe('E2E Tests - Error Scenarios', () => {
       };
 
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       secondUserToken = registerResponse.body.data.accessToken;
 
       const entryResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           title: 'Test Entry',
@@ -681,7 +681,7 @@ describe('E2E Tests - Error Scenarios', () => {
       secondUserEntryId = entryResponse.body.data.id;
 
       const response = await request(app)
-        .get(`/api/entries/${secondUserEntryId}`)
+        .get(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -703,7 +703,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return consistent error response format for 404 errors', async () => {
       const response = await request(app)
-        .get('/api/entries/00000000-0000-0000-0000-000000000000')
+        .get('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -717,7 +717,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should return consistent error response format for 400 errors', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           content: 'Missing title',
@@ -734,7 +734,7 @@ describe('E2E Tests - Error Scenarios', () => {
 
     it('should include validation details in 400 error responses when available', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: '',

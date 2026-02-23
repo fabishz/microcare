@@ -20,6 +20,9 @@ interface EnvConfig {
   cors: {
     frontendUrl: string;
   };
+  redis: {
+    url: string;
+  };
   security: {
     httpsOnly: boolean;
     trustProxy: boolean;
@@ -91,6 +94,9 @@ export function validateEnv(): EnvConfig {
     },
     cors: {
       frontendUrl: process.env.FRONTEND_URL!,
+    },
+    redis: {
+      url: process.env.REDIS_URL || 'redis://localhost:6379',
     },
     security: {
       httpsOnly,

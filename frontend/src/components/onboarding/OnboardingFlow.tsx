@@ -62,7 +62,7 @@ export function OnboardingFlow({ open, onComplete }: OnboardingFlowProps) {
 
         setIsCompleting(true);
         try {
-            await apiClient.post('/api/users/complete-onboarding', {});
+            await apiClient.post('/api/v1/users/complete-onboarding', {});
             onComplete();
         } catch (error) {
             console.error('Failed to complete onboarding:', error);

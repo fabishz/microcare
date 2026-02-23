@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import AuthController from '../controllers/AuthController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
 import { loginLimiter, registerLimiter } from '../middleware/rateLimiter.js';
-import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import { validateRequest } from '../middleware/validationMiddleware.js';
 import {
   registrationSchema,
   loginSchema,
@@ -12,17 +12,17 @@ import {
  * Authentication Routes
  * 
  * Requirements: 1.1, 1.2, 4.1, 4.2
- * - POST /api/auth/register - User registration
- * - POST /api/auth/login - User login
- * - POST /api/auth/logout - User logout
- * - POST /api/auth/refresh - Refresh access token
+ * - POST /api/v1/auth/register - User registration
+ * - POST /api/v1/auth/login - User login
+ * - POST /api/v1/auth/logout - User logout
+ * - POST /api/v1/auth/refresh - Refresh access token
  */
 
 const router = Router();
 
 /**
  * @swagger
- * /api/auth/register:
+ * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
  *     description: Create a new user account with email and password
@@ -117,7 +117,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/auth/login:
+ * /api/v1/auth/login:
  *   post:
  *     summary: Login user
  *     description: Authenticate user with email and password, returns JWT tokens
@@ -207,7 +207,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/auth/logout:
+ * /api/v1/auth/logout:
  *   post:
  *     summary: Logout user
  *     description: Invalidate user session (requires authentication)
@@ -260,7 +260,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/auth/refresh:
+ * /api/v1/auth/refresh:
  *   post:
  *     summary: Refresh access token
  *     description: Get a new access token using a refresh token
@@ -360,7 +360,7 @@ function asyncHandler(
 }
 
 /**
- * POST /api/auth/register
+ * POST /api/v1/auth/register
  * Register a new user
  * 
  * Request body:
@@ -396,13 +396,12 @@ function asyncHandler(
 router.post(
   '/register',
   registerLimiter,
-  sanitizeRequestBody,
   validateRequest(registrationSchema),
   asyncHandler(AuthController.register.bind(AuthController))
 );
 
 /**
- * POST /api/auth/login
+ * POST /api/v1/auth/login
  * Login a user
  * 
  * Request body:
@@ -437,13 +436,12 @@ router.post(
 router.post(
   '/login',
   loginLimiter,
-  sanitizeRequestBody,
   validateRequest(loginSchema),
   asyncHandler(AuthController.login.bind(AuthController))
 );
 
 /**
- * POST /api/auth/logout
+ * POST /api/v1/auth/logout
  * Logout a user (requires authentication)
  * 
  * Headers:
@@ -471,7 +469,7 @@ router.post(
 );
 
 /**
- * POST /api/auth/refresh
+ * POST /api/v1/auth/refresh
  * Refresh access token using refresh token
  * 
  * Request body:
@@ -496,7 +494,6 @@ router.post(
  */
 router.post(
   '/refresh',
-  sanitizeRequestBody,
   asyncHandler(AuthController.refresh.bind(AuthController))
 );
 

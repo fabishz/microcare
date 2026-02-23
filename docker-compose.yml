@@ -24,6 +24,21 @@ services:
       start_period: 10s
     restart: unless-stopped
 
+  # Redis for background jobs
+  redis:
+    image: redis:7-alpine
+    container_name: microcare-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microcare-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   # Backend API Service
   backend:
     build:
@@ -40,10 +55,13 @@ services:
       JWT_EXPIRATION: 15m
       REFRESH_TOKEN_EXPIRATION: 7d
       FRONTEND_URL: http://localhost:5173
+      REDIS_URL: redis://redis:6379
     ports:
       - "3000:3000"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     volumes:
       - ./backend/src:/app/src
@@ -59,6 +77,36 @@ services:
       start_period: 10s
     restart: unless-stopped
     command: npm run dev
+
+  # Background worker for async jobs
+  backend-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: microcare-backend-worker
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/microcare
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@postgres:5432/microcare
+      JWT_SECRET: dev-secret-key-change-in-production
+      JWT_EXPIRATION: 15m
+      REFRESH_TOKEN_EXPIRATION: 7d
+      FRONTEND_URL: http://localhost:5173
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      - /app/node_modules
+    networks:
+      - microcare-network
+    restart: unless-stopped
+    command: npm run worker
 
   # Frontend Service (Vite Dev Server)
   frontend:

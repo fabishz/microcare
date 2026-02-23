@@ -54,7 +54,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Register and login test user
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(testUser);
 
       accessToken = registerResponse.body.data.accessToken;
@@ -97,7 +97,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(entryData)
         .expect(201);
@@ -123,7 +123,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(entryData)
         .expect(201);
@@ -136,7 +136,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when title is missing', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           content: 'Content without title',
@@ -149,7 +149,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when content is missing', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Title without content',
@@ -162,7 +162,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when title is empty string', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: '',
@@ -176,7 +176,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when content is empty string', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Some title',
@@ -190,7 +190,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when mood is invalid', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Entry with invalid mood',
@@ -205,7 +205,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .send({
           title: 'Entry',
           content: 'Content',
@@ -220,7 +220,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
   describeIfDb('List Entries with Pagination', () => {
     it('should list entries with default pagination', async () => {
       const response = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -237,7 +237,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should list entries with custom page and limit', async () => {
       const response = await request(app)
-        .get('/api/entries?page=1&limit=5')
+        .get('/api/v1/entries?page=1&limit=5')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -249,7 +249,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should list entries sorted by createdAt descending', async () => {
       const response = await request(app)
-        .get('/api/entries?sortBy=createdAt&order=desc')
+        .get('/api/v1/entries?sortBy=createdAt&order=desc')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -266,7 +266,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should list entries sorted by createdAt ascending', async () => {
       const response = await request(app)
-        .get('/api/entries?sortBy=createdAt&order=asc')
+        .get('/api/v1/entries?sortBy=createdAt&order=asc')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -283,7 +283,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should list entries sorted by updatedAt', async () => {
       const response = await request(app)
-        .get('/api/entries?sortBy=updatedAt&order=desc')
+        .get('/api/v1/entries?sortBy=updatedAt&order=desc')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -293,7 +293,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when page is less than 1', async () => {
       const response = await request(app)
-        .get('/api/entries?page=0')
+        .get('/api/v1/entries?page=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -303,7 +303,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when limit is less than 1', async () => {
       const response = await request(app)
-        .get('/api/entries?limit=0')
+        .get('/api/v1/entries?limit=0')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -313,7 +313,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when limit exceeds 100', async () => {
       const response = await request(app)
-        .get('/api/entries?limit=101')
+        .get('/api/v1/entries?limit=101')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -323,7 +323,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when sortBy is invalid', async () => {
       const response = await request(app)
-        .get('/api/entries?sortBy=invalidField')
+        .get('/api/v1/entries?sortBy=invalidField')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -333,7 +333,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when order is invalid', async () => {
       const response = await request(app)
-        .get('/api/entries?order=invalid')
+        .get('/api/v1/entries?order=invalid')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(400);
 
@@ -343,7 +343,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -352,7 +352,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should only return entries belonging to authenticated user', async () => {
       const response = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -367,7 +367,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
   describeIfDb('Get Specific Entry', () => {
     it('should get a specific entry successfully', async () => {
       const response = await request(app)
-        .get(`/api/entries/${entryId}`)
+        .get(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -382,7 +382,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 404 when entry does not exist', async () => {
       const response = await request(app)
-        .get('/api/entries/00000000-0000-0000-0000-000000000000')
+        .get('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -392,7 +392,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .get(`/api/entries/${entryId}`)
+        .get(`/api/v1/entries/${entryId}`)
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -401,7 +401,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .get(`/api/entries/${entryId}`)
+        .get(`/api/v1/entries/${entryId}`)
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
 
@@ -417,7 +417,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -433,7 +433,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -448,7 +448,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -463,7 +463,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -481,7 +481,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -495,7 +495,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when no fields are provided', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(400);
@@ -506,7 +506,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when title is empty string', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: '' })
         .expect(400);
@@ -517,7 +517,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when content is empty string', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ content: '' })
         .expect(400);
@@ -528,7 +528,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 400 when mood is invalid', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ mood: 'invalid-mood' })
         .expect(400);
@@ -539,7 +539,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 404 when entry does not exist', async () => {
       const response = await request(app)
-        .put('/api/entries/00000000-0000-0000-0000-000000000000')
+        .put('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: 'New Title' })
         .expect(404);
@@ -550,7 +550,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .send({ title: 'New Title' })
         .expect(401);
 
@@ -560,7 +560,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .put(`/api/entries/${entryId}`)
+        .put(`/api/v1/entries/${entryId}`)
         .set('Authorization', 'Bearer invalid-token')
         .send({ title: 'New Title' })
         .expect(401);
@@ -574,7 +574,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
     it('should delete entry successfully', async () => {
       // Create an entry to delete
       const createResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Entry to Delete',
@@ -585,7 +585,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Delete the entry
       const response = await request(app)
-        .delete(`/api/entries/${entryToDeleteId}`)
+        .delete(`/api/v1/entries/${entryToDeleteId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(204);
 
@@ -593,7 +593,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Verify entry is deleted
       const getResponse = await request(app)
-        .get(`/api/entries/${entryToDeleteId}`)
+        .get(`/api/v1/entries/${entryToDeleteId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -602,7 +602,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 404 when entry does not exist', async () => {
       const response = await request(app)
-        .delete('/api/entries/00000000-0000-0000-0000-000000000000')
+        .delete('/api/v1/entries/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 
@@ -612,7 +612,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .delete(`/api/entries/${entryId}`)
+        .delete(`/api/v1/entries/${entryId}`)
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -621,7 +621,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .delete(`/api/entries/${entryId}`)
+        .delete(`/api/v1/entries/${entryId}`)
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
 
@@ -644,7 +644,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
       };
 
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       secondUserToken = registerResponse.body.data.accessToken;
@@ -652,7 +652,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Create an entry for the second user
       const entryResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           title: 'Second User Entry',
@@ -675,7 +675,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should not allow user to access another user\'s entry', async () => {
       const response = await request(app)
-        .get(`/api/entries/${secondUserEntryId}`)
+        .get(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -685,7 +685,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should not allow user to update another user\'s entry', async () => {
       const response = await request(app)
-        .put(`/api/entries/${secondUserEntryId}`)
+        .put(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ title: 'Hacked Title' })
         .expect(403);
@@ -696,7 +696,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should not allow user to delete another user\'s entry', async () => {
       const response = await request(app)
-        .delete(`/api/entries/${secondUserEntryId}`)
+        .delete(`/api/v1/entries/${secondUserEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(403);
 
@@ -706,7 +706,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
     it('should only return entries belonging to authenticated user', async () => {
       const response = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -722,7 +722,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
     it('should complete full entry workflow: create → list → get → update → delete', async () => {
       // Step 1: Create entry
       const createResponse = await request(app)
-        .post('/api/entries')
+        .post('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Workflow Test Entry',
@@ -737,7 +737,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 2: List entries and verify new entry is present
       const listResponse = await request(app)
-        .get('/api/entries')
+        .get('/api/v1/entries')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -749,7 +749,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 3: Get specific entry
       const getResponse = await request(app)
-        .get(`/api/entries/${workflowEntryId}`)
+        .get(`/api/v1/entries/${workflowEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -759,7 +759,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 4: Update entry
       const updateResponse = await request(app)
-        .put(`/api/entries/${workflowEntryId}`)
+        .put(`/api/v1/entries/${workflowEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           title: 'Updated Workflow Entry',
@@ -773,7 +773,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 5: Verify update persisted
       const verifyResponse = await request(app)
-        .get(`/api/entries/${workflowEntryId}`)
+        .get(`/api/v1/entries/${workflowEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -781,7 +781,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 6: Delete entry
       const deleteResponse = await request(app)
-        .delete(`/api/entries/${workflowEntryId}`)
+        .delete(`/api/v1/entries/${workflowEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(204);
 
@@ -789,7 +789,7 @@ describe('E2E Tests - Journal Entry Operations', () => {
 
       // Step 7: Verify entry is deleted
       const deletedResponse = await request(app)
-        .get(`/api/entries/${workflowEntryId}`)
+        .get(`/api/v1/entries/${workflowEntryId}`)
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(404);
 

@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserProfile = async () => {
     try {
-      const userData = await apiClient.get<User>('/api/users/profile');
+      const userData = await apiClient.get<User>('/api/v1/users/profile');
       setUser(userData);
       setError(null);
     } catch (err) {
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshToken: string;
         user: User;
       }>(
-        '/api/auth/login',
+        '/api/v1/auth/login',
         { email, password },
         { skipAuth: true }
       );
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         refreshToken: string;
         user: User;
       }>(
-        '/api/auth/register',
+        '/api/v1/auth/register',
         { name, email, password },
         { skipAuth: true }
       );

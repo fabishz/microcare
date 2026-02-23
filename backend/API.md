@@ -4,9 +4,10 @@ This document provides a professional overview of the MicroCare Backend API. For
 
 ## 🔗 Quick Links
 
--   **Base URL**: `http://localhost:3000/api`
+-   **Base URL**: `http://localhost:3000/api/v1/v1`
 -   **Interactive Docs (Swagger)**: `http://localhost:3000/api/docs`
 -   **Health Check**: `http://localhost:3000/api/health`
+-   **Prometheus Metrics**: `http://localhost:3000/metrics`
 
 ## 🔐 Authentication
 
@@ -21,7 +22,7 @@ Authorization: Bearer <your_access_token>
 ### Protocol
 1.  **Login** or **Register** to receive an `accessToken` and `refreshToken`.
 2.  Use the `accessToken` for subsequent requests.
-3.  When the `accessToken` expires (15 minutes), use the `/api/auth/refresh` endpoint with your `refreshToken` to get a new pair.
+3.  When the `accessToken` expires (15 minutes), use the `/api/v1/auth/refresh` endpoint with your `refreshToken` to get a new pair.
 
 ## 📦 Response Format
 

@@ -98,14 +98,14 @@ describe('API Client - Token Management', () => {
 
       // Make a request that should trigger token refresh
       try {
-        await apiClient.get('/api/test');
+        await apiClient.get('/api/v1/test');
       } catch {
         // Expected to fail since we're mocking, but token refresh should have been attempted
       }
 
       // Verify refresh was called
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/auth/refresh'),
+        expect.stringContaining('/api/v1/auth/refresh'),
         expect.any(Object)
       );
     });
@@ -146,14 +146,14 @@ describe('API Client - Token Management', () => {
         });
 
       try {
-        await apiClient.get('/api/test');
+        await apiClient.get('/api/v1/test');
       } catch {
         // Expected behavior
       }
 
       // Verify refresh endpoint was called
       expect(global.fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/auth/refresh'),
+        expect.stringContaining('/api/v1/auth/refresh'),
         expect.any(Object)
       );
     });
@@ -177,7 +177,7 @@ describe('API Client - Token Management', () => {
       window.location = { href: '' } as any;
 
       try {
-        await apiClient.get('/api/test');
+        await apiClient.get('/api/v1/test');
       } catch (error) {
         // Expected to throw
       }
@@ -209,7 +209,7 @@ describe('API Client - Token Management', () => {
       });
 
       try {
-        await apiClient.post('/api/test', { data: 'test' });
+        await apiClient.post('/api/v1/test', { data: 'test' });
       } catch (error: any) {
         // Verify sensitive fields are not in error details
         expect(error.details).not.toHaveProperty('token');
@@ -230,7 +230,7 @@ describe('API Client - Token Management', () => {
         json: async () => ({ data: { message: 'success' } }),
       });
 
-      await apiClient.get('/api/test');
+      await apiClient.get('/api/v1/test');
 
       // Verify Authorization header was included
       expect(global.fetch).toHaveBeenCalledWith(
@@ -254,7 +254,7 @@ describe('API Client - Token Management', () => {
         json: async () => ({ data: { message: 'success' } }),
       });
 
-      await apiClient.get('/api/test', { skipAuth: true });
+      await apiClient.get('/api/v1/test', { skipAuth: true });
 
       // Verify Authorization header was NOT included
       expect(global.fetch).toHaveBeenCalledWith(

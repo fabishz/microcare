@@ -7,6 +7,7 @@ This document describes the monitoring and health check endpoints available in t
 The backend provides comprehensive monitoring capabilities including:
 - Health check endpoint for service availability
 - Detailed metrics endpoint for performance monitoring
+- Prometheus-compatible metrics endpoint
 - Request/response metrics collection
 - Database connectivity monitoring
 - Memory and resource usage tracking
@@ -126,6 +127,18 @@ Returns detailed application metrics for monitoring and observability.
 curl http://localhost:3000/api/metrics
 ```
 
+## Prometheus Metrics
+
+### Endpoint: `GET /metrics`
+
+Returns metrics in Prometheus text format suitable for scraping.
+
+**Example Usage:**
+
+```bash
+curl http://localhost:3000/metrics
+```
+
 ## Monitoring Integration
 
 ### Prometheus Integration
@@ -141,7 +154,7 @@ scrape_configs:
   - job_name: 'microcare-backend'
     static_configs:
       - targets: ['localhost:3000']
-    metrics_path: '/api/metrics'
+    metrics_path: '/metrics'
 ```
 
 ### Grafana Dashboard

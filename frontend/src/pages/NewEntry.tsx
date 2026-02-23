@@ -30,7 +30,7 @@ export default function NewEntry() {
 
     setIsGeneratingInsight(true);
     try {
-      const response = await fetch('/api/ai', {
+      const response = await fetch('/api/v1/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

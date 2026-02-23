@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import EntryController from '../controllers/EntryController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import { validateRequest } from '../middleware/validationMiddleware.js';
 import {
   createEntrySchema,
   updateEntrySchema,
@@ -11,11 +11,11 @@ import {
  * Journal Entry Routes
  * 
  * Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6
- * - POST /api/entries - Create new entry
- * - GET /api/entries - List user's entries (paginated)
- * - GET /api/entries/:id - Get specific entry
- * - PUT /api/entries/:id - Update entry
- * - DELETE /api/entries/:id - Delete entry
+ * - POST /api/v1/entries - Create new entry
+ * - GET /api/v1/entries - List user's entries (paginated)
+ * - GET /api/v1/entries/:id - Get specific entry
+ * - PUT /api/v1/entries/:id - Update entry
+ * - DELETE /api/v1/entries/:id - Delete entry
  * 
  * All endpoints require authentication
  */
@@ -24,7 +24,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/entries:
+ * /api/v1/entries:
  *   post:
  *     summary: Create a new journal entry
  *     description: Create a new journal entry for the authenticated user
@@ -105,7 +105,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/entries:
+ * /api/v1/entries:
  *   get:
  *     summary: Get user's journal entries
  *     description: Retrieve paginated list of journal entries for the authenticated user
@@ -188,7 +188,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/entries/{id}:
+ * /api/v1/entries/{id}:
  *   get:
  *     summary: Get a specific journal entry
  *     description: Retrieve a specific journal entry by ID (must be owned by authenticated user)
@@ -255,7 +255,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/entries/{id}:
+ * /api/v1/entries/{id}:
  *   put:
  *     summary: Update a journal entry
  *     description: Update a journal entry (must be owned by authenticated user)
@@ -345,7 +345,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/entries/{id}:
+ * /api/v1/entries/{id}:
  *   delete:
  *     summary: Delete a journal entry
  *     description: Delete a journal entry (must be owned by authenticated user)
@@ -410,7 +410,7 @@ function asyncHandler(
 }
 
 /**
- * POST /api/entries
+ * POST /api/v1/entries
  * Create a new journal entry
  * 
  * Headers:
@@ -450,13 +450,12 @@ function asyncHandler(
 router.post(
   '/',
   authMiddleware,
-  sanitizeRequestBody,
   validateRequest(createEntrySchema),
   asyncHandler(EntryController.createEntry.bind(EntryController))
 );
 
 /**
- * GET /api/entries
+ * GET /api/v1/entries
  * Get all journal entries for authenticated user with pagination
  * 
  * Headers:
@@ -470,7 +469,7 @@ router.post(
  * - sortBy: string (default: createdAt) - Field to sort by (createdAt or updatedAt)
  * - order: string (default: desc) - Sort order (asc or desc)
  * 
- * Example: GET /api/entries?page=1&limit=10&sortBy=createdAt&order=desc
+ * Example: GET /api/v1/entries?page=1&limit=10&sortBy=createdAt&order=desc
  * 
  * Response (200 OK):
  * {
@@ -508,7 +507,7 @@ router.get(
 );
 
 /**
- * GET /api/entries/:id
+ * GET /api/v1/entries/:id
  * Get a specific journal entry by ID
  * 
  * Headers:
@@ -549,7 +548,7 @@ router.get(
 );
 
 /**
- * PUT /api/entries/:id
+ * PUT /api/v1/entries/:id
  * Update a journal entry
  * 
  * Headers:
@@ -594,13 +593,12 @@ router.get(
 router.put(
   '/:id',
   authMiddleware,
-  sanitizeRequestBody,
   validateRequest(updateEntrySchema),
   asyncHandler(EntryController.updateEntry.bind(EntryController))
 );
 
 /**
- * DELETE /api/entries/:id
+ * DELETE /api/v1/entries/:id
  * Delete a journal entry
  * 
  * Headers:

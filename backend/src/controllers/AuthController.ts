@@ -14,17 +14,17 @@ import { verifyRefreshToken, generateTokenPair } from '../utils/jwt.js';
  * Handles HTTP requests for authentication endpoints
  * 
  * Requirements: 1.1, 1.2, 4.1, 4.2
- * - Implements POST /api/auth/register endpoint
- * - Implements POST /api/auth/login endpoint
- * - Implements POST /api/auth/logout endpoint
- * - Implements POST /api/auth/refresh endpoint
+ * - Implements POST /api/v1/auth/register endpoint
+ * - Implements POST /api/v1/auth/login endpoint
+ * - Implements POST /api/v1/auth/logout endpoint
+ * - Implements POST /api/v1/auth/refresh endpoint
  * - Adds input validation for all endpoints
  */
 
 export class AuthController {
   /**
    * Register a new user
-   * POST /api/auth/register
+   * POST /api/v1/auth/register
    * 
    * Requirement 1.1: WHEN a user submits valid registration credentials (email, password, name),
    * THE system SHALL create a new user account and return a success response with HTTP 201 status
@@ -87,7 +87,7 @@ export class AuthController {
 
   /**
    * Login a user
-   * POST /api/auth/login
+   * POST /api/v1/auth/login
    * 
    * Requirement 1.2: WHEN a user submits valid login credentials, THE system SHALL authenticate
    * the user and return a JWT token with HTTP 200 status
@@ -144,7 +144,7 @@ export class AuthController {
 
   /**
    * Logout a user
-   * POST /api/auth/logout
+   * POST /api/v1/auth/logout
    * 
    * Requirement 1.5: WHEN a user logs out, THE system SHALL invalidate the session
    * and require re-authentication for subsequent requests
@@ -178,7 +178,7 @@ export class AuthController {
 
   /**
    * Refresh access token
-   * POST /api/auth/refresh
+   * POST /api/v1/auth/refresh
    * 
    * Requirement 1.2: Generate JWT tokens on successful authentication
    * Uses refresh token to generate a new access token

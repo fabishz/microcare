@@ -5,6 +5,8 @@ import {
   PaginatedResponse,
 } from '../types/index.js';
 import EntryRepository from '../repositories/EntryRepository.js';
+import { enqueueEntryAnalysis } from '../queues/analysisQueue.js';
+import logger from '../utils/logger.js';
 
 /**
  * EntryService
@@ -93,6 +95,23 @@ export class EntryService {
       createData.mood?.toLowerCase(),
       createData.tags?.map((tag) => tag.trim())
     );
+
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        await enqueueEntryAnalysis({
+          entryId: entry.id,
+          userId,
+          title: entry.title,
+          content: entry.content,
+        });
+      } catch (error) {
+        logger.warn('Failed to enqueue entry analysis job', {
+          entryId: entry.id,
+          userId,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     return entry;
   }

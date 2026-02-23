@@ -14,11 +14,11 @@ import EntryService from '../services/EntryService.js';
  * Handles HTTP requests for journal entry management endpoints
  * 
  * Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6
- * - Implements POST /api/entries endpoint
- * - Implements GET /api/entries endpoint with pagination
- * - Implements GET /api/entries/:id endpoint
- * - Implements PUT /api/entries/:id endpoint
- * - Implements DELETE /api/entries/:id endpoint
+ * - Implements POST /api/v1/entries endpoint
+ * - Implements GET /api/v1/entries endpoint with pagination
+ * - Implements GET /api/v1/entries/:id endpoint
+ * - Implements PUT /api/v1/entries/:id endpoint
+ * - Implements DELETE /api/v1/entries/:id endpoint
  * - Adds authentication requirement to all endpoints
  * - Adds input validation for all endpoints
  */
@@ -26,7 +26,7 @@ import EntryService from '../services/EntryService.js';
 export class EntryController {
   /**
    * Create a new journal entry
-   * POST /api/entries
+   * POST /api/v1/entries
    * 
    * Requirement 3.1: WHEN an authenticated user creates a journal entry with title and content,
    * THE system SHALL store the entry with a timestamp and return HTTP 201 Created
@@ -106,7 +106,7 @@ export class EntryController {
 
   /**
    * Get all journal entries for authenticated user with pagination
-   * GET /api/entries
+   * GET /api/v1/entries
    * 
    * Requirement 3.2: WHEN an authenticated user requests their journal entries,
    * THE system SHALL return a paginated list filtered by user with HTTP 200 status
@@ -174,7 +174,7 @@ export class EntryController {
 
   /**
    * Get a specific journal entry by ID
-   * GET /api/entries/:id
+   * GET /api/v1/entries/:id
    * 
    * Requirement 3.3: WHEN an authenticated user requests a specific journal entry by ID,
    * THE system SHALL return the entry if ownership is verified, otherwise return HTTP 403 Forbidden
@@ -229,7 +229,7 @@ export class EntryController {
 
   /**
    * Update a journal entry
-   * PUT /api/entries/:id
+   * PUT /api/v1/entries/:id
    * 
    * Requirement 3.4: WHEN an authenticated user updates a journal entry they own,
    * THE system SHALL persist the changes and return HTTP 200 OK
@@ -327,7 +327,7 @@ export class EntryController {
 
   /**
    * Delete a journal entry
-   * DELETE /api/entries/:id
+   * DELETE /api/v1/entries/:id
    * 
    * Requirement 3.5: WHEN an authenticated user deletes a journal entry they own,
    * THE system SHALL remove the entry from the database and return HTTP 204 No Content

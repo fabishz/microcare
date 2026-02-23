@@ -15,9 +15,9 @@ import { logAuditEvent, AuditEventType } from '../utils/audit.js';
  * Handles HTTP requests for user profile management endpoints
  * 
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
- * - Implements GET /api/users/profile endpoint
- * - Implements PUT /api/users/profile endpoint
- * - Implements POST /api/users/change-password endpoint
+ * - Implements GET /api/v1/users/profile endpoint
+ * - Implements PUT /api/v1/users/profile endpoint
+ * - Implements POST /api/v1/users/change-password endpoint
  * - Adds authentication requirement to all endpoints
  * - Adds input validation for profile updates
  */
@@ -25,7 +25,7 @@ import { logAuditEvent, AuditEventType } from '../utils/audit.js';
 export class UserController {
   /**
    * Get user profile
-   * GET /api/users/profile
+   * GET /api/v1/users/profile
    * 
    * Requirement 2.1: WHEN an authenticated user requests their profile,
    * THE system SHALL return their user information with HTTP 200 status
@@ -66,7 +66,7 @@ export class UserController {
 
   /**
    * Update user profile
-   * PUT /api/users/profile
+   * PUT /api/v1/users/profile
    * 
    * Requirement 2.2: WHEN an authenticated user updates their profile (name, email, preferences),
    * THE system SHALL validate the input and persist changes to the database
@@ -158,7 +158,7 @@ export class UserController {
 
   /**
    * Change user password
-   * POST /api/users/change-password
+   * POST /api/v1/users/change-password
    * 
    * Requirement 2.5: WHEN a user changes their password,
    * THE system SHALL hash the new password and update the database securely
@@ -228,7 +228,7 @@ export class UserController {
 
   /**
    * Complete user onboarding
-   * POST /api/users/complete-onboarding
+   * POST /api/v1/users/complete-onboarding
    */
   async completeOnboarding(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {

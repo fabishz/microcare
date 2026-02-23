@@ -39,7 +39,7 @@ describe('Input Sanitization - XSS Prevention', () => {
     });
 
     it('should escape forward slashes', () => {
-      const input = '/api/users/profile';
+      const input = '/api/v1/users/profile';
       const result = sanitizeString(input);
       
       expect(result).toContain('&#x2F;');

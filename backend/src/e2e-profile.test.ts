@@ -51,7 +51,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Register and login test user
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(testUser);
 
       accessToken = registerResponse.body.data.accessToken;
@@ -95,7 +95,7 @@ describe('E2E Tests - User Profile Operations', () => {
   describeIfDb('Get User Profile', () => {
     it('should retrieve user profile successfully', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -112,7 +112,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should not include password hash in profile response', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -123,7 +123,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -132,7 +132,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'Bearer invalid-token')
         .expect(401);
 
@@ -142,7 +142,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is malformed', async () => {
       const response = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', 'InvalidTokenFormat')
         .expect(401);
 
@@ -158,7 +158,7 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -176,7 +176,7 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -187,7 +187,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Verify email change persisted
       const profileResponse = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -201,7 +201,7 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(updateData)
         .expect(200);
@@ -213,7 +213,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when name is empty string', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '' })
         .expect(400);
@@ -224,7 +224,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when name is only whitespace', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: '   ' })
         .expect(400);
@@ -235,7 +235,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when email format is invalid', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: 'invalid-email-format' })
         .expect(400);
@@ -246,7 +246,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when email is missing @ symbol', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: 'invalidemail.com' })
         .expect(400);
@@ -257,7 +257,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when email is missing domain extension', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: 'invalid@email' })
         .expect(400);
@@ -268,7 +268,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when no fields are provided', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({})
         .expect(400);
@@ -286,12 +286,12 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       // Try to update first user's email to second user's email
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: secondUser.email })
         .expect(400);
@@ -302,7 +302,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .send({ name: 'New Name' })
         .expect(401);
 
@@ -312,7 +312,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', 'Bearer invalid-token')
         .send({ name: 'New Name' })
         .expect(401);
@@ -330,7 +330,7 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send(changePasswordData)
         .expect(200);
@@ -341,7 +341,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Verify new password works for login
       const loginResponse = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: testUser.email,
           password: changePasswordData.newPassword,
@@ -357,7 +357,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when current password is missing', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ newPassword: 'AnotherPassword123!' })
         .expect(400);
@@ -368,7 +368,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when new password is missing', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ currentPassword: testUser.password })
         .expect(400);
@@ -379,7 +379,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when current password is incorrect', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: 'WrongPassword123!',
@@ -393,7 +393,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 400 when new password is same as current password', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
@@ -407,7 +407,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is missing', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .send({
           currentPassword: testUser.password,
           newPassword: 'NewPassword123!',
@@ -420,7 +420,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
     it('should return 401 when token is invalid', async () => {
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', 'Bearer invalid-token')
         .send({
           currentPassword: testUser.password,
@@ -446,7 +446,7 @@ describe('E2E Tests - User Profile Operations', () => {
       };
 
       const registerResponse = await request(app)
-        .post('/api/auth/register')
+        .post('/api/v1/auth/register')
         .send(secondUser);
 
       secondUserToken = registerResponse.body.data.accessToken;
@@ -467,7 +467,7 @@ describe('E2E Tests - User Profile Operations', () => {
       // This test verifies that even if someone tries to manipulate the API,
       // they cannot update another user's profile
       const response = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({ name: 'Hacked Name' })
         .expect(200);
@@ -478,7 +478,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Verify first user's profile is unchanged
       const firstUserProfile = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -489,7 +489,7 @@ describe('E2E Tests - User Profile Operations', () => {
     it('should not allow user to change another user\'s password', async () => {
       // This test verifies that users cannot change other users' passwords
       const response = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${secondUserToken}`)
         .send({
           currentPassword: testUser.password,
@@ -502,7 +502,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Verify first user can still login with original password
       const loginResponse = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: testUser.email,
           password: testUser.password,
@@ -517,7 +517,7 @@ describe('E2E Tests - User Profile Operations', () => {
     it('should complete full profile workflow: get → update name → update email → change password', async () => {
       // Step 1: Get initial profile
       const initialProfile = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -526,7 +526,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Step 2: Update name
       const updateNameResponse = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ name: 'Workflow Test Name' })
         .expect(200);
@@ -536,7 +536,7 @@ describe('E2E Tests - User Profile Operations', () => {
       // Step 3: Update email
       const newEmail = 'e2e-profile-workflow@example.com';
       const updateEmailResponse = await request(app)
-        .put('/api/users/profile')
+        .put('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({ email: newEmail })
         .expect(200);
@@ -545,7 +545,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Step 4: Verify updates persisted
       const verifyProfile = await request(app)
-        .get('/api/users/profile')
+        .get('/api/v1/users/profile')
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200);
 
@@ -555,7 +555,7 @@ describe('E2E Tests - User Profile Operations', () => {
       // Step 5: Change password
       const newPassword = 'WorkflowPassword123!';
       const changePasswordResponse = await request(app)
-        .post('/api/users/change-password')
+        .post('/api/v1/users/change-password')
         .set('Authorization', `Bearer ${accessToken}`)
         .send({
           currentPassword: testUser.password,
@@ -567,7 +567,7 @@ describe('E2E Tests - User Profile Operations', () => {
 
       // Step 6: Verify new password works for login
       const loginResponse = await request(app)
-        .post('/api/auth/login')
+        .post('/api/v1/auth/login')
         .send({
           email: newEmail,
           password: newPassword,

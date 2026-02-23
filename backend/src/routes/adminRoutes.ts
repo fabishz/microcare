@@ -7,7 +7,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/admin/users:
+ * /api/v1/admin/users:
  *   get:
  *     summary: Get all users (Admin only)
  *     description: Retrieve paginated list of all users with search capability
@@ -47,7 +47,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/stats:
+ * /api/v1/admin/stats:
  *   get:
  *     summary: Get system statistics (Admin only)
  *     description: Retrieve system-wide statistics
@@ -72,7 +72,7 @@ router.get(
 
 /**
  * @swagger
- * /api/admin/users/{id}/role:
+ * /api/v1/admin/users/{id}/role:
  *   put:
  *     summary: Update user role (Admin only)
  *     description: Change a user's role
@@ -113,7 +113,7 @@ router.put(
 
 /**
  * @swagger
- * /api/admin/users/{id}:
+ * /api/v1/admin/users/{id}:
  *   delete:
  *     summary: Delete user (Admin only)
  *     description: Permanently delete a user

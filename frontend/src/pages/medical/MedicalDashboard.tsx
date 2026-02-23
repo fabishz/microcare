@@ -36,8 +36,8 @@ export default function MedicalDashboard() {
         try {
             setIsLoading(true);
             const [overviewData, analyticsData] = await Promise.all([
-                apiClient.get<PatientOverview>('/api/medical/overview'),
-                apiClient.get<Analytics>('/api/medical/analytics'),
+                apiClient.get<PatientOverview>('/api/v1/medical/overview'),
+                apiClient.get<Analytics>('/api/v1/medical/analytics'),
             ]);
 
             setOverview(overviewData);

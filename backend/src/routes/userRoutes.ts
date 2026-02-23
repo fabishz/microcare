@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import UserController from '../controllers/UserController.js';
 import { authMiddleware, AuthenticatedRequest } from '../middleware/authMiddleware.js';
-import { validateRequest, sanitizeRequestBody } from '../middleware/validationMiddleware.js';
+import { validateRequest } from '../middleware/validationMiddleware.js';
 import {
   updateProfileSchema,
   changePasswordSchema,
@@ -11,9 +11,9 @@ import {
  * User Profile Routes
  * 
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5
- * - GET /api/users/profile - Get user profile
- * - PUT /api/users/profile - Update user profile
- * - POST /api/users/change-password - Change password
+ * - GET /api/v1/users/profile - Get user profile
+ * - PUT /api/v1/users/profile - Update user profile
+ * - POST /api/v1/users/change-password - Change password
  * 
  * All endpoints require authentication
  */
@@ -22,7 +22,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/profile:
+ * /api/v1/users/profile:
  *   get:
  *     summary: Get user profile
  *     description: Retrieve the authenticated user's profile information
@@ -73,7 +73,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/profile:
+ * /api/v1/users/profile:
  *   put:
  *     summary: Update user profile
  *     description: Update the authenticated user's profile information (name and/or email)
@@ -147,7 +147,7 @@ const router = Router();
 
 /**
  * @swagger
- * /api/users/change-password:
+ * /api/v1/users/change-password:
  *   post:
  *     summary: Change user password
  *     description: Change the authenticated user's password
@@ -236,7 +236,7 @@ function asyncHandler(
 }
 
 /**
- * GET /api/users/profile
+ * GET /api/v1/users/profile
  * Get authenticated user's profile
  * 
  * Headers:
@@ -269,7 +269,7 @@ router.get(
 );
 
 /**
- * PUT /api/users/profile
+ * PUT /api/v1/users/profile
  * Update authenticated user's profile
  * 
  * Headers:
@@ -306,13 +306,12 @@ router.get(
 router.put(
   '/profile',
   authMiddleware,
-  sanitizeRequestBody,
   validateRequest(updateProfileSchema),
   asyncHandler(UserController.updateProfile.bind(UserController))
 );
 
 /**
- * POST /api/users/change-password
+ * POST /api/v1/users/change-password
  * Change authenticated user's password
  * 
  * Headers:
@@ -349,14 +348,13 @@ router.put(
 router.post(
   '/change-password',
   authMiddleware,
-  sanitizeRequestBody,
   validateRequest(changePasswordSchema),
   asyncHandler(UserController.changePassword.bind(UserController))
 );
 
 /**
  * @swagger
- * /api/users/complete-onboarding:
+ * /api/v1/users/complete-onboarding:
  *   post:
  *     summary: Complete user onboarding
  *     description: Mark the authenticated user's onboarding as complete

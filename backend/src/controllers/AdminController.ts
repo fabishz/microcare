@@ -15,7 +15,7 @@ import { UserRole } from '../types/index.js';
 export class AdminController {
     /**
      * Get all users (paginated)
-     * GET /api/admin/users
+     * GET /api/v1/admin/users
      */
     async getUsers(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
@@ -37,7 +37,7 @@ export class AdminController {
 
     /**
      * Get system statistics
-     * GET /api/admin/stats
+     * GET /api/v1/admin/stats
      */
     async getStats(_req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
@@ -55,7 +55,7 @@ export class AdminController {
 
     /**
      * Update user role
-     * PUT /api/admin/users/:id/role
+     * PUT /api/v1/admin/users/:id/role
      */
     async updateUserRole(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {
@@ -88,7 +88,7 @@ export class AdminController {
 
     /**
      * Delete user
-     * DELETE /api/admin/users/:id
+     * DELETE /api/v1/admin/users/:id
      */
     async deleteUser(req: AuthenticatedRequest, res: Response): Promise<void> {
         try {

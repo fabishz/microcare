@@ -38,7 +38,7 @@ export function useProfile() {
   const fetchProfile = useCallback(async (): Promise<UserProfile> => {
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
     try {
-      const profile = await apiClient.get<UserProfile>('/api/users/profile');
+      const profile = await apiClient.get<UserProfile>('/api/v1/users/profile');
       setState((prev) => ({
         ...prev,
         profile,
@@ -65,7 +65,7 @@ export function useProfile() {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
         const updatedProfile = await apiClient.put<UserProfile>(
-          '/api/users/profile',
+          '/api/v1/users/profile',
           input
         );
         setState((prev) => ({
@@ -95,7 +95,7 @@ export function useProfile() {
     async (input: ChangePasswordInput): Promise<void> => {
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
       try {
-        await apiClient.post('/api/users/change-password', input);
+        await apiClient.post('/api/v1/users/change-password', input);
         setState((prev) => ({
           ...prev,
           isLoading: false,
