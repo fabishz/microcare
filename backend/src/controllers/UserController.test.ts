@@ -34,6 +34,7 @@ describe('UserController', () => {
         id: 'user-123',
         email: 'user@example.com',
         name: 'John Doe',
+        aiConsent: false,
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01'),
       };
@@ -94,6 +95,7 @@ describe('UserController', () => {
         id: 'user-123',
         email: 'jane@example.com',
         name: 'Jane Doe',
+        aiConsent: false,
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-02'),
       };
@@ -105,7 +107,7 @@ describe('UserController', () => {
       expect(UserService.updateUserProfile).toHaveBeenCalledWith(
         'user-123',
         'user-123',
-        { name: 'Jane Doe', email: 'jane@example.com' }
+        { name: 'Jane Doe', email: 'jane@example.com', aiConsent: undefined }
       );
       expect(mockRes.status).toHaveBeenCalledWith(200);
       expect(mockRes.json).toHaveBeenCalledWith(
@@ -123,6 +125,7 @@ describe('UserController', () => {
         id: 'user-123',
         email: 'user@example.com',
         name: 'Jane Doe',
+        aiConsent: false,
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-02'),
       };
@@ -134,7 +137,7 @@ describe('UserController', () => {
       expect(UserService.updateUserProfile).toHaveBeenCalledWith(
         'user-123',
         'user-123',
-        { name: 'Jane Doe', email: undefined }
+        { name: 'Jane Doe', email: undefined, aiConsent: undefined }
       );
     });
 
@@ -145,6 +148,7 @@ describe('UserController', () => {
         id: 'user-123',
         email: 'newemail@example.com',
         name: 'John Doe',
+        aiConsent: false,
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-02'),
       };
@@ -156,7 +160,7 @@ describe('UserController', () => {
       expect(UserService.updateUserProfile).toHaveBeenCalledWith(
         'user-123',
         'user-123',
-        { name: undefined, email: 'newemail@example.com' }
+        { name: undefined, email: 'newemail@example.com', aiConsent: undefined }
       );
     });
 
