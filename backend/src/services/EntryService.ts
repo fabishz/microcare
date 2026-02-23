@@ -5,8 +5,11 @@ import {
   PaginatedResponse,
 } from '../types/index.js';
 import EntryRepository from '../repositories/EntryRepository.js';
+import UserRepository from '../repositories/UserRepository.js';
 import { enqueueEntryAnalysis } from '../queues/analysisQueue.js';
 import logger from '../utils/logger.js';
+import { exportAsJson, exportAsPdf, exportAsTxt, ExportResult } from '../utils/exportUtils.js';
+import InsightRepository from '../repositories/InsightRepository.js';
 
 /**
  * EntryService
@@ -98,12 +101,15 @@ export class EntryService {
 
     if (process.env.NODE_ENV !== 'test') {
       try {
-        await enqueueEntryAnalysis({
-          entryId: entry.id,
-          userId,
-          title: entry.title,
-          content: entry.content,
-        });
+        const user = await UserRepository.findById(userId);
+        if (user?.aiConsent) {
+          await enqueueEntryAnalysis({
+            entryId: entry.id,
+            userId,
+            title: entry.title,
+            content: entry.content,
+          });
+        }
       } catch (error) {
         logger.warn('Failed to enqueue entry analysis job', {
           entryId: entry.id,
@@ -140,7 +146,12 @@ export class EntryService {
       throw new Error('Entry not found or access denied');
     }
 
-    return entry;
+    const insight = await InsightRepository.findByEntryId(entry.id);
+    return {
+      ...entry,
+      insight: insight?.summary,
+      insightThemes: insight?.themes,
+    };
   }
 
   /**
@@ -176,8 +187,20 @@ export class EntryService {
 
     // Fetch entries from repository
     const result = await EntryRepository.findByUserId(userId, page, limit, sortBy, order);
+    const insights = await InsightRepository.findByEntryIds(result.data.map((entry) => entry.id));
+    const insightMap = new Map(insights.map((insight) => [insight.entryId, insight]));
 
-    return result;
+    return {
+      ...result,
+      data: result.data.map((entry) => {
+        const insight = insightMap.get(entry.id);
+        return {
+          ...entry,
+          insight: insight?.summary,
+          insightThemes: insight?.themes,
+        };
+      }),
+    };
   }
 
   /**
@@ -286,6 +309,28 @@ export class EntryService {
     }
 
     return true;
+  }
+
+  /**
+   * Export all entries for a user
+   */
+  async exportEntries(userId: string, format: 'pdf' | 'json' | 'txt'): Promise<ExportResult> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    const entries = await EntryRepository.findAllByUserId(userId);
+
+    switch (format) {
+      case 'pdf':
+        return exportAsPdf(entries);
+      case 'txt':
+        return exportAsTxt(entries);
+      case 'json':
+        return exportAsJson(entries);
+      default:
+        throw new Error('Unsupported export format');
+    }
   }
 }
 

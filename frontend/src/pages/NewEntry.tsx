@@ -17,6 +17,7 @@ export default function NewEntry() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { createEntry, isLoading: isSaving, error } = useEntries();
+  const apiBaseUrl = import.meta.env.VITE_API_URL || '';
 
   const generateInsight = async () => {
     if (!content.trim()) {
@@ -30,7 +31,7 @@ export default function NewEntry() {
 
     setIsGeneratingInsight(true);
     try {
-      const response = await fetch('/api/v1/ai', {
+      const response = await fetch(`${apiBaseUrl}/api/v1/ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +43,7 @@ export default function NewEntry() {
       if (!response.ok) throw new Error('Failed to generate insight');
 
       const data = await response.json();
-      setInsight(data.insight);
+      setInsight(data.data?.insight || '');
       
       toast({
         title: 'Insight generated! ✨',

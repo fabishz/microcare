@@ -511,6 +511,10 @@ export const updateProfileSchema: ValidationSchema = {
     type: 'string',
     custom: (value) => (value ? validateEmail(value as string) : { valid: true }),
   },
+  aiConsent: {
+    required: false,
+    type: 'boolean',
+  },
 };
 
 /**

@@ -89,6 +89,8 @@ src/
 - `GET /api/v1/users/profile` - Get current user profile
 - `PUT /api/v1/users/profile` - Update user profile
 - `POST /api/v1/users/change-password` - Change password
+- `DELETE /api/v1/users/account` - Delete account
+- `GET /api/v1/users/entries/export?format=pdf|json|txt` - Export entries
 
 ### Journal Entries
 - `POST /api/v1/entries` - Create new entry
@@ -96,6 +98,9 @@ src/
 - `GET /api/v1/entries/:id` - Get specific entry
 - `PUT /api/v1/entries/:id` - Update entry
 - `DELETE /api/v1/entries/:id` - Delete entry
+
+### AI Insights
+- `POST /api/v1/ai` - Generate insight (requires user consent)
 
 ## Environment Variables
 

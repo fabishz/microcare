@@ -17,6 +17,7 @@ import userRoutes from './routes/userRoutes.js';
 import entryRoutes from './routes/entryRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import medicalRoutes from './routes/medicalRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import logger from './utils/logger.js';
 
 dotenv.config();
@@ -211,7 +212,7 @@ app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'MicroCare API Documentation',
 }));
 
-const apiBase = '/api/v1/v1';
+const apiBase = '/api/v1';
 
 // Authentication routes
 app.use(`${apiBase}/auth`, authRoutes);
@@ -227,6 +228,9 @@ app.use(`${apiBase}/admin`, adminRoutes);
 
 // Medical professional routes (protected by role middleware)
 app.use(`${apiBase}/medical`, medicalRoutes);
+
+// AI insight routes (protected by auth middleware)
+app.use(`${apiBase}/ai`, aiRoutes);
 
 // 404 Not Found middleware (place before error handler)
 app.use(notFoundHandler);

@@ -13,6 +13,7 @@ interface User {
   email: string;
   role: UserRole;
   hasCompletedOnboarding: boolean;
+  aiConsent: boolean;
 }
 
 interface AuthContextType {

@@ -11,6 +11,7 @@ export interface User {
   name: string;
   passwordHash: string;
   role: UserRole;
+  aiConsent: boolean;
   hasCompletedOnboarding: boolean;
   failedLoginAttempts: number;
   lockoutUntil: Date | null;
@@ -23,6 +24,7 @@ export interface UserProfile {
   email: string;
   name: string;
   role: UserRole;
+  aiConsent: boolean;
   hasCompletedOnboarding: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -36,6 +38,8 @@ export interface JournalEntry {
   content: string;
   mood?: string;
   tags?: string[];
+  insight?: string;
+  insightThemes?: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -69,6 +73,7 @@ export interface RefreshTokenPayload {
 export interface UpdateProfileRequest {
   name?: string;
   email?: string;
+  aiConsent?: boolean;
 }
 
 export interface ChangePasswordRequest {

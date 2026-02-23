@@ -8,6 +8,8 @@ export interface JournalEntry {
   content: string;
   mood?: string;
   tags?: string[];
+  insight?: string;
+  insightThemes?: string[];
   createdAt: string;
   updatedAt: string;
 }

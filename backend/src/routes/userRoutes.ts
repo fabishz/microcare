@@ -353,6 +353,29 @@ router.post(
 );
 
 /**
+ * DELETE /api/v1/users/account
+ * Delete authenticated user's account
+ */
+router.delete(
+  '/account',
+  authMiddleware,
+  asyncHandler(UserController.deleteAccount.bind(UserController))
+);
+
+/**
+ * GET /api/v1/users/entries/export
+ * Export all journal entries for authenticated user
+ * 
+ * Query parameters:
+ * - format: pdf | json | txt
+ */
+router.get(
+  '/entries/export',
+  authMiddleware,
+  asyncHandler(UserController.exportEntries.bind(UserController))
+);
+
+/**
  * @swagger
  * /api/v1/users/complete-onboarding:
  *   post:

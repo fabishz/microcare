@@ -1,6 +1,8 @@
 import { Worker } from 'bullmq';
 import { analysisQueueName, connection } from './queues/analysisQueue.js';
 import logger from './utils/logger.js';
+import { generateInsightFromEntry } from './utils/insights.js';
+import InsightRepository from './repositories/InsightRepository.js';
 
 const worker = new Worker(
   analysisQueueName,
@@ -8,9 +10,8 @@ const worker = new Worker(
     const { entryId, userId, title } = job.data;
     logger.info('Processing entry analysis job', { entryId, userId, title });
 
-    // Placeholder for AI analysis integration.
-    // This is intentionally asynchronous and should be replaced with a real model/service call.
-    await new Promise((resolve) => setTimeout(resolve, 250));
+    const insight = generateInsightFromEntry(job.data.content);
+    await InsightRepository.upsertInsight(entryId, userId, insight.summary, insight.themes);
 
     logger.info('Entry analysis completed', { entryId, userId });
   },

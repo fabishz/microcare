@@ -8,6 +8,7 @@ import {
   NotFoundError,
 } from '../utils/errors.js';
 import UserService from '../services/UserService.js';
+import EntryService from '../services/EntryService.js';
 import { logAuditEvent, AuditEventType } from '../utils/audit.js';
 
 /**
@@ -84,11 +85,11 @@ export class UserController {
         throw new AuthenticationError('Not authenticated');
       }
 
-      const { name, email } = req.body;
+      const { name, email, aiConsent } = req.body;
 
       // Validate that at least one field is provided
-      if (name === undefined && email === undefined) {
-        throw new ValidationError('At least one field (name or email) must be provided');
+      if (name === undefined && email === undefined && aiConsent === undefined) {
+        throw new ValidationError('At least one field (name, email, or AI consent) must be provided');
       }
 
       // Validate name if provided
@@ -113,11 +114,15 @@ export class UserController {
         }
       }
 
+      if (aiConsent !== undefined && typeof aiConsent !== 'boolean') {
+        throw new ValidationError('AI consent must be a boolean', { aiConsent: 'AI consent must be a boolean' });
+      }
+
       // Update profile through service (includes authorization check)
       const updatedProfile = await UserService.updateUserProfile(
         req.user.userId,
         req.user.userId,
-        { name, email }
+        { name, email, aiConsent }
       );
 
       // Audit log profile update
@@ -125,7 +130,7 @@ export class UserController {
         userId: req.user.userId,
         success: true,
         action: 'PROFILE_UPDATE',
-        metadata: { updatedFields: Object.keys({ name, email }).filter(k => (req.body as any)[k] !== undefined) },
+        metadata: { updatedFields: Object.keys({ name, email, aiConsent }).filter(k => (req.body as any)[k] !== undefined) },
       });
 
       res.status(200).json({
@@ -261,6 +266,98 @@ export class UserController {
       }
 
       throw new ApiError(500, 'Failed to complete onboarding', 'ONBOARDING_COMPLETION_FAILED');
+    }
+  }
+
+  /**
+   * Export all journal entries for the authenticated user
+   * GET /api/v1/users/entries/export?format=pdf|json|txt
+   */
+  async exportEntries(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new AuthenticationError('Not authenticated');
+      }
+
+      const format = (req.query.format as string)?.toLowerCase();
+      if (!format || !['pdf', 'json', 'txt'].includes(format)) {
+        throw new ValidationError('Invalid format. Use pdf, json, or txt.', {
+          format: 'Format must be pdf, json, or txt',
+        });
+      }
+
+      const exportResult = await EntryService.exportEntries(
+        req.user.userId,
+        format as 'pdf' | 'json' | 'txt'
+      );
+
+      res.setHeader('Content-Type', exportResult.contentType);
+      res.setHeader('Content-Disposition', `attachment; filename="${exportResult.filename}"`);
+      res.status(200).send(exportResult.data);
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('Not authenticated')) {
+          throw new AuthenticationError(error.message);
+        }
+
+        if (error.message.includes('Invalid format') || error.message.includes('Unsupported')) {
+          throw new ValidationError(error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to export entries', 'ENTRIES_EXPORT_FAILED');
+    }
+  }
+
+  /**
+   * Delete user account
+   * DELETE /api/v1/users/account
+   */
+  async deleteAccount(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      if (!req.user) {
+        throw new AuthenticationError('Not authenticated');
+      }
+
+      const { password } = req.body;
+      if (!password || typeof password !== 'string') {
+        throw new ValidationError('Password is required', {
+          password: 'Password is required',
+        });
+      }
+
+      await UserService.deleteAccount(req.user.userId, password);
+
+      logAuditEvent(AuditEventType.ACCOUNT_DELETED, {
+        userId: req.user.userId,
+        success: true,
+      });
+
+      res.status(204).send();
+    } catch (error) {
+      if (error instanceof ApiError) {
+        throw error;
+      }
+
+      if (error instanceof Error) {
+        if (error.message.includes('Not authenticated')) {
+          throw new AuthenticationError(error.message);
+        }
+
+        if (error.message.includes('Password')) {
+          throw new ValidationError(error.message);
+        }
+
+        if (error.message.includes('User not found')) {
+          throw new NotFoundError(error.message);
+        }
+      }
+
+      throw new ApiError(500, 'Failed to delete account', 'ACCOUNT_DELETE_FAILED');
     }
   }
 }

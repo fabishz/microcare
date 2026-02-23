@@ -80,6 +80,7 @@ export class UserRepository {
       passwordHash?: string;
       hasCompletedOnboarding?: boolean;
       role?: UserRole;
+      aiConsent?: boolean;
     }
   ): Promise<User> {
     try {

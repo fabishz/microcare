@@ -39,6 +39,7 @@ export class UserService {
       email: user.email,
       name: user.name,
       role: user.role,
+      aiConsent: user.aiConsent,
       hasCompletedOnboarding: user.hasCompletedOnboarding,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -72,7 +73,7 @@ export class UserService {
     }
 
     // Validate input data
-    const updatePayload: { name?: string; email?: string } = {};
+    const updatePayload: { name?: string; email?: string; aiConsent?: boolean } = {};
 
     if (updateData.name !== undefined) {
       const trimmedName = updateData.name.trim();
@@ -99,6 +100,10 @@ export class UserService {
       updatePayload.email = trimmedEmail;
     }
 
+    if (updateData.aiConsent !== undefined) {
+      updatePayload.aiConsent = !!updateData.aiConsent;
+    }
+
     // If no valid updates, return current profile
     if (Object.keys(updatePayload).length === 0) {
       return this.getUserProfile(userId);
@@ -112,6 +117,7 @@ export class UserService {
       email: updatedUser.email,
       name: updatedUser.name,
       role: updatedUser.role,
+      aiConsent: updatedUser.aiConsent,
       hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
@@ -178,6 +184,7 @@ export class UserService {
       email: updatedUser.email,
       name: updatedUser.name,
       role: updatedUser.role,
+      aiConsent: updatedUser.aiConsent,
       hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
@@ -210,12 +217,38 @@ export class UserService {
       email: updatedUser.email,
       name: updatedUser.name,
       role: updatedUser.role,
+      aiConsent: updatedUser.aiConsent,
       hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
       createdAt: updatedUser.createdAt,
       updatedAt: updatedUser.updatedAt,
     };
 
     return userProfile;
+  }
+
+  /**
+   * Delete a user account after password verification
+   */
+  async deleteAccount(userId: string, password: string): Promise<void> {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    if (!password) {
+      throw new Error('Password is required');
+    }
+
+    const user = await UserRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const passwordMatch = await comparePassword(password, user.passwordHash);
+    if (!passwordMatch) {
+      throw new Error('Password is incorrect');
+    }
+
+    await UserRepository.delete(userId);
   }
 }
 

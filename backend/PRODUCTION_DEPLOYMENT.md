@@ -51,6 +51,9 @@ JWT_SECRET=[generate-strong-random-secret]
 JWT_EXPIRATION=15m
 REFRESH_TOKEN_EXPIRATION=7d
 
+# Encryption (Base64-encoded 32-byte key)
+ENCRYPTION_KEY=[generate-strong-random-base64-key]
+
 # CORS Configuration
 FRONTEND_URL=https://microcare.example.com
 
