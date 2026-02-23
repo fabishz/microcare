@@ -1,4 +1,5 @@
 import { UserService } from './UserService.js';
+import { UserRole } from '../types/index.js';
 import UserRepository from '../repositories/UserRepository.js';
 import * as passwordUtils from '../utils/password.js';
 
@@ -21,6 +22,9 @@ describe('UserService', () => {
         email: 'user@example.com',
         name: 'John Doe',
         passwordHash: 'hashed-password',
+        role: UserRole.USER,
+        aiConsent: false,
+        hasCompletedOnboarding: false,
         createdAt: new Date('2024-01-01'),
         updatedAt: new Date('2024-01-01'),
       };
@@ -33,6 +37,9 @@ describe('UserService', () => {
         id: 'user-123',
         email: 'user@example.com',
         name: 'John Doe',
+        role: UserRole.USER,
+        aiConsent: false,
+        hasCompletedOnboarding: false,
         createdAt: mockUser.createdAt,
         updatedAt: mockUser.updatedAt,
       });
@@ -65,6 +72,9 @@ describe('UserService', () => {
       email: 'user@example.com',
       name: 'John Doe',
       passwordHash: 'hashed-password',
+      role: UserRole.USER,
+      aiConsent: false,
+      hasCompletedOnboarding: false,
       createdAt: new Date('2024-01-01'),
       updatedAt: new Date('2024-01-01'),
     };

@@ -16,6 +16,7 @@
     "db:seed": "tsx scripts/seed-db.ts",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
+    "db:reencrypt": "tsx scripts/reencrypt-entries.ts",
     "db:studio": "prisma studio",
     "verify-startup": "tsx scripts/verify-startup.ts",
     "setup": "cp -n .env.example .env || true && npm install"

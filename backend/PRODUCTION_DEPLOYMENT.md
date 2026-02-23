@@ -117,6 +117,12 @@ npm run db:migrate:deploy
 npx prisma migrate status
 ```
 
+If enabling app-level encryption on an existing database, run:
+
+```bash
+npm run db:reencrypt
+```
+
 ### Step 4: Start Application
 
 ```bash

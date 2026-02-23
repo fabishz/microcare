@@ -6,6 +6,8 @@ export interface UserProfile {
   email: string;
   name: string;
   aiConsent: boolean;
+  role?: string;
+  hasCompletedOnboarding?: boolean;
   createdAt: string;
   updatedAt: string;
 }

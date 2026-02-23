@@ -199,6 +199,14 @@ npm run db:migrate -- --name add_user_bio
 npm run db:migrate:deploy
 ```
 
+### Encrypt Existing Entries (if upgrading)
+
+If you are enabling app-level encryption on an existing database, re-encrypt stored entries:
+
+```bash
+npm run db:reencrypt
+```
+
 ### Checking Migration Status
 ```bash
 npx prisma migrate status
