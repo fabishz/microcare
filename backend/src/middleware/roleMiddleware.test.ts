@@ -4,11 +4,7 @@ import { UserRole } from '../types/index';
 import { AuthorizationError } from '../utils/errors';
 
 // Mock UserRepository
-jest.mock('../repositories/UserRepository.js', () => ({
-    default: {
-        findById: jest.fn(),
-    },
-}));
+jest.mock('../repositories/UserRepository.js');
 
 import UserRepository from '../repositories/UserRepository.js';
 

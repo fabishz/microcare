@@ -1,10 +1,6 @@
 import { spawn, ChildProcess } from 'child_process';
 import http from 'http';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * End-to-End Tests for Graceful Shutdown and Error Recovery
@@ -68,7 +64,7 @@ describe('E2E Tests - Graceful Shutdown and Error Recovery', () => {
   function startServer(port: number): ChildProcess {
     const env = { ...process.env, PORT: String(port), NODE_ENV: 'test' };
     return spawn('npm', ['run', 'start'], {
-      cwd: path.resolve(__dirname, '../'),
+      cwd: path.resolve(process.cwd()),
       env,
       stdio: 'pipe',
     });
