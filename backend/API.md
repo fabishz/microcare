@@ -4,7 +4,7 @@ This document provides a professional overview of the MicroCare Backend API. For
 
 ## 🔗 Quick Links
 
--   **Base URL**: `http://localhost:3000/api/v1/v1`
+-   **Base URL**: `http://localhost:3000/api/v1`
 -   **Interactive Docs (Swagger)**: `http://localhost:3000/api/docs`
 -   **Health Check**: `http://localhost:3000/api/health`
 -   **Prometheus Metrics**: `http://localhost:3000/metrics`
@@ -22,7 +22,7 @@ Authorization: Bearer <your_access_token>
 ### Protocol
 1.  **Login** or **Register** to receive an `accessToken` and `refreshToken`.
 2.  Use the `accessToken` for subsequent requests.
-3.  When the `accessToken` expires (15 minutes), use the `/api/v1/auth/refresh` endpoint with your `refreshToken` to get a new pair.
+3.  When the `accessToken` expires (15 minutes), use the `/auth/refresh` endpoint with your `refreshToken` to get a new pair.
 
 ## 📦 Response Format
 
@@ -77,12 +77,19 @@ The API follows a strict JSON envelope standard for all responses.
 -   `POST /auth/login` - Sign in
 -   `POST /auth/refresh` - Refresh token
 
+### AI Insights
+-   `POST /ai` - Generate supportive insight (requires user consent)
+
 ### Journal Entries
 -   `GET /entries` - List entries (supports pagination: `?page=1&limit=10`)
 -   `POST /entries` - Create entry
 -   `GET /entries/:id` - Get specific entry
 -   `PUT /entries/:id` - Update entry
 -   `DELETE /entries/:id` - Delete entry
+
+### User Profile
+-   `DELETE /users/account` - Delete account (requires password)
+-   `GET /users/entries/export?format=pdf|json|txt` - Export entries
 
 ### User
 -   `GET /users/profile` - Get profile info
